@@ -1872,9 +1872,7 @@ img {
   overflow: hidden;
   border-radius: 18px;
   place-items: center;
-  background:
-    radial-gradient(circle, rgba(151, 198, 170, 0.24), transparent 30%),
-    #0e6847;
+  background: #000;
 }
 
 .video-frame iframe {
