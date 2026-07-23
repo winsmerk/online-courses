@@ -1,7 +1,14 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { KeyRound, LoaderCircle, Plus, RefreshCw } from "lucide-react";
+import {
+  Ban,
+  CircleCheck,
+  KeyRound,
+  LoaderCircle,
+  Plus,
+  RefreshCw,
+} from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
 type ManagedUser = {
@@ -11,6 +18,8 @@ type ManagedUser = {
   role: "student" | "admin";
   createdAt: string;
   lastSignInAt?: string | null;
+  isCurrent?: boolean;
+  disabled?: boolean;
 };
 
 export function AdminUserManager() {
@@ -20,6 +29,7 @@ export function AdminUserManager() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [resetUser, setResetUser] = useState<ManagedUser | null>(null);
+  const [statusUser, setStatusUser] = useState<ManagedUser | null>(null);
   const [resetPassword, setResetPassword] = useState("");
   const { t, locale } = useLanguage();
 
@@ -78,6 +88,7 @@ export function AdminUserManager() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        action: "resetPassword",
         userId: resetUser.id,
         password: resetPassword,
       }),
@@ -89,6 +100,32 @@ export function AdminUserManager() {
       setMessage(t("已重设 {email} 的密码。", { email: resetUser.email }));
       setResetUser(null);
       setResetPassword("");
+    }
+    setSubmitting(false);
+  }
+
+  async function confirmStatusChange() {
+    if (!statusUser) return;
+    const nextDisabled = !statusUser.disabled;
+    setSubmitting(true);
+    setMessage("");
+    setError("");
+    const response = await fetch("/api/admin/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "setDisabled",
+        userId: statusUser.id,
+        disabled: nextDisabled,
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      setError(t(result.error ?? "账号状态更新失败"));
+    } else {
+      setMessage(t(nextDisabled ? "管理员账号已禁用。" : "管理员账号已启用。"));
+      setStatusUser(null);
+      await loadUsers();
     }
     setSubmitting(false);
   }
@@ -170,15 +207,48 @@ export function AdminUserManager() {
                       <span className="role-badge">
                         {user.role === "admin" ? t("管理员") : t("普通学员")}
                       </span>
+                      {user.disabled && (
+                        <span className="account-status disabled">
+                          {t("已禁用")}
+                        </span>
+                      )}
                     </td>
                     <td>{new Date(user.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}</td>
                     <td>
-                      <button
-                        className="text-button"
-                        onClick={() => setResetUser(user)}
-                      >
-                        <KeyRound size={15} /> {t("重设密码")}
-                      </button>
+                      <div className="account-row-actions">
+                        <button
+                          className="text-button"
+                          onClick={() => setResetUser(user)}
+                        >
+                          <KeyRound size={15} /> {t("重设密码")}
+                        </button>
+                        <button
+                          className={`text-button ${
+                            user.disabled ? "enable-text" : "danger-text"
+                          }`}
+                          type="button"
+                          disabled={user.isCurrent}
+                          title={
+                            user.isCurrent
+                              ? t("当前账号不能禁用")
+                              : t(user.disabled ? "启用账号" : "禁用账号")
+                          }
+                          onClick={() => {
+                            setStatusUser(user);
+                            setMessage("");
+                            setError("");
+                          }}
+                        >
+                          {user.disabled ? (
+                            <CircleCheck size={15} />
+                          ) : (
+                            <Ban size={15} />
+                          )}
+                          {user.isCurrent
+                            ? t("当前账号")
+                            : t(user.disabled ? "启用账号" : "禁用账号")}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -218,6 +288,53 @@ export function AdminUserManager() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {statusUser && (
+        <div className="modal-backdrop" onMouseDown={() => setStatusUser(null)}>
+          <div
+            className="password-modal"
+            onMouseDown={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="status-admin-title"
+          >
+            <h2 id="status-admin-title">
+              {t(
+                statusUser.disabled
+                  ? "确认启用管理员账号？"
+                  : "确认禁用管理员账号？",
+              )}
+            </h2>
+            <p>
+              {statusUser.disabled
+                ? t("启用后，{email} 可以重新登录。", {
+                    email: statusUser.email,
+                  })
+                : t("禁用后，{email} 将无法登录，账号数据会继续保留。", {
+                    email: statusUser.email,
+                  })}
+            </p>
+            <div className="modal-actions">
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => setStatusUser(null)}
+              >
+                {t("取消")}
+              </button>
+              <button
+                className={`button ${statusUser.disabled ? "dark" : "danger"}`}
+                type="button"
+                disabled={submitting}
+                onClick={() => void confirmStatusChange()}
+              >
+                {submitting && <LoaderCircle className="spin" size={16} />}
+                {t(statusUser.disabled ? "确认启用" : "确认禁用")}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

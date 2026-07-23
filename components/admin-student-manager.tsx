@@ -2,8 +2,10 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
+  Ban,
   BookPlus,
   Check,
+  CircleCheck,
   KeyRound,
   LoaderCircle,
   Plus,
@@ -20,6 +22,7 @@ type Student = {
   createdAt: string;
   lastSignInAt?: string | null;
   courseIds: string[];
+  disabled?: boolean;
 };
 
 type AssignableCourse = {
@@ -39,6 +42,7 @@ export function AdminStudentManager() {
   const [assigningStudent, setAssigningStudent] = useState<Student | null>(null);
   const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);
   const [resetStudent, setResetStudent] = useState<Student | null>(null);
+  const [statusStudent, setStatusStudent] = useState<Student | null>(null);
   const [resetPassword, setResetPassword] = useState("");
   const { t } = useLanguage();
 
@@ -187,6 +191,40 @@ export function AdminStudentManager() {
     }
   }
 
+  async function confirmStatusChange() {
+    if (!statusStudent) return;
+    const nextDisabled = !statusStudent.disabled;
+    setSubmitting(true);
+    setMessage("");
+    setError("");
+    try {
+      const response = await fetch("/api/admin/students", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "setDisabled",
+          userId: statusStudent.id,
+          disabled: nextDisabled,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(t(result.error ?? "学员账号状态更新失败"));
+      }
+      setMessage(t(nextDisabled ? "学员账号已禁用。" : "学员账号已启用。"));
+      setStatusStudent(null);
+      await loadStudents();
+    } catch (deleteError) {
+      setError(
+        deleteError instanceof Error
+          ? deleteError.message
+          : t("学员账号状态更新失败"),
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   const courseTitleMap = useMemo(
     () => new Map(courses.map((course) => [course.id, course.title])),
     [courses],
@@ -290,6 +328,11 @@ export function AdminStudentManager() {
                   <div>
                     <h3>{student.displayName}</h3>
                     <p>{student.email}</p>
+                    {student.disabled && (
+                      <span className="account-status disabled">
+                        {t("已禁用")}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="student-course-summary">
@@ -331,6 +374,24 @@ export function AdminStudentManager() {
                     }}
                   >
                     <KeyRound size={15} /> {t("重设密码")}
+                  </button>
+                  <button
+                    className={`text-button ${
+                      student.disabled ? "enable-text" : "danger-text"
+                    }`}
+                    type="button"
+                    onClick={() => {
+                      setStatusStudent(student);
+                      setMessage("");
+                      setError("");
+                    }}
+                  >
+                    {student.disabled ? (
+                      <CircleCheck size={15} />
+                    ) : (
+                      <Ban size={15} />
+                    )}
+                    {t(student.disabled ? "启用账号" : "禁用账号")}
                   </button>
                 </div>
               </article>
@@ -441,6 +502,58 @@ export function AdminStudentManager() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {statusStudent && (
+        <div
+          className="modal-backdrop"
+          onMouseDown={() => setStatusStudent(null)}
+        >
+          <div
+            className="password-modal"
+            onMouseDown={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="status-student-title"
+          >
+            <h2 id="status-student-title">
+              {t(
+                statusStudent.disabled
+                  ? "确认启用学员账号？"
+                  : "确认禁用学员账号？",
+              )}
+            </h2>
+            <p>
+              {statusStudent.disabled
+                ? t("启用后，{email} 可以重新登录。", {
+                    email: statusStudent.email,
+                  })
+                : t("禁用后，{email} 将无法登录，课程分配和学习记录会继续保留。", {
+                    email: statusStudent.email,
+                  })}
+            </p>
+            <div className="modal-actions">
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => setStatusStudent(null)}
+              >
+                {t("取消")}
+              </button>
+              <button
+                className={`button ${
+                  statusStudent.disabled ? "dark" : "danger"
+                }`}
+                type="button"
+                disabled={submitting}
+                onClick={() => void confirmStatusChange()}
+              >
+                {submitting && <LoaderCircle className="spin" size={16} />}
+                {t(statusStudent.disabled ? "确认启用" : "确认禁用")}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

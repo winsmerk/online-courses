@@ -209,6 +209,35 @@ const english: Record<string, string> = {
   普通学员: "Student",
   重设密码: "Reset password",
   确认重设: "Reset password",
+  当前账号: "Current account",
+  已禁用: "Disabled",
+  禁用账号: "Disable account",
+  启用账号: "Enable account",
+  当前账号不能禁用: "The current account cannot be disabled",
+  确认禁用: "Disable",
+  确认启用: "Enable",
+  "确认禁用管理员账号？": "Disable administrator account?",
+  "确认启用管理员账号？": "Enable administrator account?",
+  "确认禁用学员账号？": "Disable student account?",
+  "确认启用学员账号？": "Enable student account?",
+  "禁用后，{email} 将无法登录，账号数据会继续保留。":
+    "After disabling, {email} cannot log in. Account data will be retained.",
+  "禁用后，{email} 将无法登录，课程分配和学习记录会继续保留。":
+    "After disabling, {email} cannot log in. Course access and learning records will be retained.",
+  "启用后，{email} 可以重新登录。":
+    "After enabling, {email} can log in again.",
+  "管理员账号已禁用。": "Administrator account disabled.",
+  "管理员账号已启用。": "Administrator account enabled.",
+  "学员账号已禁用。": "Student account disabled.",
+  "学员账号已启用。": "Student account enabled.",
+  账号状态更新失败: "Failed to update account status",
+  学员账号状态更新失败: "Failed to update student account status",
+  不能禁用当前登录的管理员账号:
+    "You cannot disable the administrator account currently signed in.",
+  只能管理管理员账号状态:
+    "Only administrator account status can be managed here.",
+  不能在学员管理中修改管理员账号状态:
+    "Administrator account status cannot be changed from student management.",
   账号列表加载失败: "Failed to load accounts",
   账号创建失败: "Failed to create account",
   "账号已创建，用户可立即使用邮箱和密码登录。":

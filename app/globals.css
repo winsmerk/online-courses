@@ -1567,6 +1567,45 @@ img {
   gap: 14px;
 }
 
+.account-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.text-button.danger-text {
+  color: #b33b3b;
+}
+
+.text-button.danger-text:hover {
+  color: #8f2424;
+}
+
+.text-button.enable-text {
+  color: #287654;
+}
+
+.account-status {
+  width: fit-content;
+  margin-top: 5px;
+  padding: 3px 8px;
+  display: inline-flex;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.account-status.disabled {
+  color: #8a3636;
+  background: #f8e5e5;
+}
+
+.text-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
 .course-assignment-modal {
   width: min(560px, 100%);
 }

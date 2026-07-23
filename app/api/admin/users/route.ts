@@ -10,10 +10,18 @@ const createUserSchema = z.object({
   role: z.enum(["student", "admin"]),
 });
 
-const resetPasswordSchema = z.object({
-  userId: z.string().uuid(),
-  password: z.string().min(8, "密码至少需要 8 位"),
-});
+const updateUserSchema = z.discriminatedUnion("action", [
+  z.object({
+    action: z.literal("resetPassword"),
+    userId: z.string().uuid(),
+    password: z.string().min(8, "密码至少需要 8 位"),
+  }),
+  z.object({
+    action: z.literal("setDisabled"),
+    userId: z.string().uuid(),
+    disabled: z.boolean(),
+  }),
+]);
 
 async function getAdminContext() {
   const viewer = await getViewer();
@@ -62,6 +70,10 @@ export async function GET() {
         role: profile?.role === "admin" ? "admin" : "student",
         createdAt: user.created_at,
         lastSignInAt: user.last_sign_in_at,
+        isCurrent: user.id === context.viewer.id,
+        disabled:
+          Boolean(user.banned_until) &&
+          new Date(user.banned_until!).getTime() > Date.now(),
       };
     }),
   });
@@ -113,18 +125,51 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "无权执行此操作" }, { status: 403 });
   }
 
-  const parsed = resetPasswordSchema.safeParse(await request.json());
+  const parsed = updateUserSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "密码信息不完整" },
+      { error: parsed.error.issues[0]?.message ?? "提交信息不完整" },
       { status: 400 },
     );
   }
 
-  const { error } = await context.admin.auth.admin.updateUserById(
-    parsed.data.userId,
-    { password: parsed.data.password },
-  );
+  if (parsed.data.action === "resetPassword") {
+    const { error } = await context.admin.auth.admin.updateUserById(
+      parsed.data.userId,
+      { password: parsed.data.password },
+    );
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    return NextResponse.json({ ok: true });
+  }
+
+  const { userId, disabled } = parsed.data;
+  if (disabled && userId === context.viewer.id) {
+    return NextResponse.json(
+      { error: "不能禁用当前登录的管理员账号" },
+      { status: 400 },
+    );
+  }
+
+  const { data: targetProfile, error: profileError } = await context.admin
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+  if (profileError) {
+    return NextResponse.json({ error: profileError.message }, { status: 400 });
+  }
+  if (targetProfile?.role !== "admin") {
+    return NextResponse.json(
+      { error: "只能管理管理员账号状态" },
+      { status: 400 },
+    );
+  }
+
+  const { error } = await context.admin.auth.admin.updateUserById(userId, {
+    ban_duration: disabled ? "876000h" : "none",
+  });
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }

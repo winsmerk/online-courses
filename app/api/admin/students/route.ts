@@ -24,6 +24,11 @@ const updateStudentSchema = z.discriminatedUnion("action", [
     userId: z.string().uuid(),
     password: z.string().min(8, "密码至少需要 8 位"),
   }),
+  z.object({
+    action: z.literal("setDisabled"),
+    userId: z.string().uuid(),
+    disabled: z.boolean(),
+  }),
 ]);
 
 async function getAdminContext() {
@@ -110,6 +115,9 @@ export async function GET() {
         createdAt: user.created_at,
         lastSignInAt: user.last_sign_in_at,
         courseIds: enrollmentMap.get(user.id) ?? [],
+        disabled:
+          Boolean(user.banned_until) &&
+          new Date(user.banned_until!).getTime() > Date.now(),
       };
     });
 
@@ -172,6 +180,32 @@ export async function PATCH(request: Request) {
     const { error } = await context.admin.auth.admin.updateUserById(
       parsed.data.userId,
       { password: parsed.data.password },
+    );
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    return NextResponse.json({ ok: true });
+  }
+
+  if (parsed.data.action === "setDisabled") {
+    const { data: targetProfile, error: profileError } = await context.admin
+      .from("profiles")
+      .select("role")
+      .eq("id", parsed.data.userId)
+      .maybeSingle();
+    if (profileError) {
+      return NextResponse.json({ error: profileError.message }, { status: 400 });
+    }
+    if (targetProfile?.role === "admin") {
+      return NextResponse.json(
+        { error: "不能在学员管理中修改管理员账号状态" },
+        { status: 400 },
+      );
+    }
+
+    const { error } = await context.admin.auth.admin.updateUserById(
+      parsed.data.userId,
+      { ban_duration: parsed.data.disabled ? "876000h" : "none" },
     );
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
