@@ -620,6 +620,8 @@ img {
   width: 320px;
   height: 190px;
   border-radius: 18px;
+  border: 1px solid var(--line);
+  color: var(--ink);
   padding: 16px;
   display: grid;
   grid-template-columns: 128px 1fr;
@@ -654,21 +656,21 @@ img {
 .portrait-card.card-a {
   top: 26px;
   left: 24px;
-  background: #0e6a47;
+  background: #f3f7f4;
   transform: rotate(-2.5deg);
 }
 
 .portrait-card.card-b {
   top: 174px;
   right: 20px;
-  background: #146f4d;
+  background: #f3f7f4;
   transform: rotate(2deg);
 }
 
 .portrait-card.card-c {
   bottom: 24px;
   left: 42px;
-  background: #1d7654;
+  background: #f3f7f4;
   transform: rotate(-1deg);
 }
 
@@ -1418,20 +1420,6 @@ img {
   background: transparent;
   font-size: 14px;
   text-align: left;
-}
-
-.sidebar-nav .language-menu {
-  margin-top: 8px;
-  justify-self: start;
-}
-
-.sidebar-nav .language-switcher {
-  color: #b7cdbf;
-}
-
-.sidebar-nav .language-dropdown {
-  right: auto;
-  left: 0;
 }
 
 .dashboard-main {

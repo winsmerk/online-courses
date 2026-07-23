@@ -11,7 +11,6 @@ import {
   Upload,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { LanguageSwitcher } from "@/components/language-switcher";
 import { useLanguage } from "@/components/language-provider";
 import { LogoutButton } from "@/components/logout-button";
 
@@ -82,7 +81,6 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
         <Settings size={16} /> {t("账号设置")}
       </Link>
       <LogoutButton icon={<LogOut size={16} />} />
-      <LanguageSwitcher />
     </nav>
   );
 }
