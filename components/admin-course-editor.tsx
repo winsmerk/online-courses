@@ -4,14 +4,23 @@ import { useState } from "react";
 import { Plus, Save, Trash2, UploadCloud } from "lucide-react";
 import * as tus from "tus-js-client";
 import { createClient } from "@/lib/supabase/browser";
+import type { Course } from "@/lib/types";
 
 type LessonDraft = {
   id: string;
   title: string;
   description: string;
   durationMinutes: number;
+  videoPath?: string | null;
   videoFile?: File;
   attachmentFiles?: File[];
+  existingAttachments?: Array<{
+    id: string;
+    filename: string;
+    storagePath: string;
+    sizeBytes?: number;
+    mimeType?: string;
+  }>;
 };
 
 type ChapterDraft = {
@@ -88,8 +97,29 @@ async function uploadVideoResumable(
   });
 }
 
-export function AdminCourseEditor({ demo }: { demo: boolean }) {
-  const [chapters, setChapters] = useState<ChapterDraft[]>([makeChapter()]);
+export function AdminCourseEditor({
+  demo,
+  initialCourse,
+}: {
+  demo: boolean;
+  initialCourse?: Course;
+}) {
+  const [chapters, setChapters] = useState<ChapterDraft[]>(() =>
+    initialCourse
+      ? initialCourse.chapters.map((chapter) => ({
+          id: chapter.id,
+          title: chapter.title,
+          lessons: chapter.lessons.map((lesson) => ({
+            id: lesson.id,
+            title: lesson.title,
+            description: lesson.description,
+            durationMinutes: lesson.durationMinutes,
+            videoPath: lesson.videoPath,
+            existingAttachments: lesson.attachments ?? [],
+          })),
+        }))
+      : [makeChapter()],
+  );
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [introImageFiles, setIntroImageFiles] = useState<File[]>([]);
   const [status, setStatus] = useState<string>("");
@@ -117,13 +147,13 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
 
     setSaving(true);
     const form = new FormData(event.currentTarget);
-    const courseId = crypto.randomUUID();
+    const courseId = initialCourse?.id ?? crypto.randomUUID();
     const supabase = createClient();
 
     try {
       if (!supabase) throw new Error("Supabase 尚未配置");
 
-      let coverUrl = "";
+      let coverUrl = initialCourse?.coverUrl ?? "";
       if (coverFile) {
         const extension = coverFile.name.split(".").pop() ?? "jpg";
         const coverPath = `${courseId}/cover.${extension}`;
@@ -136,7 +166,9 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
           .getPublicUrl(coverPath).data.publicUrl;
       }
 
-      const introImageUrls: string[] = [];
+      const introImageUrls: string[] = introImageFiles.length
+        ? []
+        : [...(initialCourse?.introImages ?? [])];
       for (const [index, file] of introImageFiles.entries()) {
         const extension = file.name.split(".").pop() ?? "jpg";
         const path = `${courseId}/content/${index + 1}.${extension}`;
@@ -154,7 +186,7 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
       for (const [chapterIndex, chapter] of chapters.entries()) {
         const lessons = [];
         for (const [lessonIndex, lesson] of chapter.lessons.entries()) {
-          let videoPath = "";
+          let videoPath = lesson.videoPath ?? "";
           if (lesson.videoFile) {
             const extension =
               lesson.videoFile.name.split(".").pop()?.toLowerCase() ?? "mp4";
@@ -166,7 +198,15 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
               videoPath,
             );
           }
-          const attachments = [];
+          const attachments = (lesson.existingAttachments ?? []).map(
+            (attachment) => ({
+              id: attachment.id,
+              filename: attachment.filename,
+              storagePath: attachment.storagePath,
+              sizeBytes: attachment.sizeBytes ?? 0,
+              mimeType: attachment.mimeType ?? "application/octet-stream",
+            }),
+          );
           for (const file of lesson.attachmentFiles ?? []) {
             const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
             const storagePath = `${courseId}/${lesson.id}/${crypto.randomUUID()}-${safeName}`;
@@ -201,7 +241,7 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
       }
 
       const response = await fetch("/api/admin/courses", {
-        method: "POST",
+        method: initialCourse ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: courseId,
@@ -221,7 +261,9 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
 
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "课程保存失败");
-      window.location.href = "/admin?created=1";
+      window.location.href = initialCourse
+        ? "/admin?updated=1"
+        : "/admin?created=1";
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "保存失败，请重试");
     } finally {
@@ -234,7 +276,13 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
       <div className="form-grid">
         <div className="field">
           <label htmlFor="title">课程名称</label>
-          <input className="input" id="title" name="title" required />
+          <input
+            className="input"
+            id="title"
+            name="title"
+            defaultValue={initialCourse?.title}
+            required
+          />
         </div>
         <div className="field">
           <label htmlFor="slug">URL 标识</label>
@@ -242,6 +290,7 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
             className="input"
             id="slug"
             name="slug"
+            defaultValue={initialCourse?.slug}
             placeholder="personal-brand"
             pattern="[a-z0-9-]+"
             required
@@ -249,15 +298,32 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
         </div>
         <div className="field">
           <label htmlFor="instructor">讲师</label>
-          <input className="input" id="instructor" name="instructor" required />
+          <input
+            className="input"
+            id="instructor"
+            name="instructor"
+            defaultValue={initialCourse?.instructor}
+            required
+          />
         </div>
         <div className="field">
           <label htmlFor="category">分类</label>
-          <input className="input" id="category" name="category" required />
+          <input
+            className="input"
+            id="category"
+            name="category"
+            defaultValue={initialCourse?.category}
+            required
+          />
         </div>
         <div className="field">
           <label htmlFor="level">难度</label>
-          <select className="select" id="level" name="level">
+          <select
+            className="select"
+            id="level"
+            name="level"
+            defaultValue={initialCourse?.level ?? "入门"}
+          >
             <option>入门</option>
             <option>进阶</option>
             <option>通用</option>
@@ -265,7 +331,12 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
         </div>
         <div className="field">
           <label htmlFor="status">状态</label>
-          <select className="select" id="status" name="status">
+          <select
+            className="select"
+            id="status"
+            name="status"
+            defaultValue={initialCourse?.status ?? "draft"}
+          >
             <option value="draft">草稿</option>
             <option value="published">发布</option>
           </select>
@@ -273,7 +344,13 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
       </div>
       <div className="field">
         <label htmlFor="subtitle">一句话简介</label>
-        <input className="input" id="subtitle" name="subtitle" required />
+        <input
+          className="input"
+          id="subtitle"
+          name="subtitle"
+          defaultValue={initialCourse?.subtitle}
+          required
+        />
       </div>
       <div className="field">
         <label htmlFor="intro-images">课程介绍图片（可多选）</label>
@@ -287,6 +364,11 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
             setIntroImageFiles(Array.from(event.target.files ?? []))
           }
         />
+        {initialCourse?.introImages.length ? (
+          <p className="existing-file-note">
+            当前已有 {initialCourse.introImages.length} 张介绍图片；重新选择后将整体替换。
+          </p>
+        ) : null}
       </div>
       <div className="field">
         <label htmlFor="description">课程介绍</label>
@@ -294,6 +376,7 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
           className="textarea"
           id="description"
           name="description"
+          defaultValue={initialCourse?.description}
           placeholder="支持多段文字。课程介绍图片可作为课程封面和后续内容区扩展。"
           required
         />
@@ -307,6 +390,9 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
           accept="image/*"
           onChange={(event) => setCoverFile(event.target.files?.[0] ?? null)}
         />
+        {initialCourse?.coverUrl ? (
+          <p className="existing-file-note">未选择新图片时保留当前课程封面。</p>
+        ) : null}
       </div>
 
       <section className="form-section">
@@ -436,6 +522,14 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
                       }))
                     }
                   />
+                  {lesson.existingAttachments?.length ? (
+                    <p className="existing-file-note">
+                      已保留：{" "}
+                      {lesson.existingAttachments
+                        .map((attachment) => attachment.filename)
+                        .join("、")}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="field">
                   <label>
@@ -456,6 +550,11 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
                       }))
                     }
                   />
+                  {lesson.videoPath ? (
+                    <p className="existing-file-note">
+                      未选择新视频时保留当前视频。
+                    </p>
+                  ) : null}
                 </div>
               </div>
             ))}
@@ -485,7 +584,12 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
       </section>
       {status && <p className="form-error">{status}</p>}
       <button className="button dark" type="submit" disabled={saving}>
-        <Save size={16} /> {saving ? "正在上传并保存…" : "保存课程"}
+        <Save size={16} />{" "}
+        {saving
+          ? "正在上传并保存…"
+          : initialCourse
+            ? "保存修改"
+            : "保存课程"}
       </button>
     </form>
   );

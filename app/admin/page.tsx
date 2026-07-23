@@ -1,14 +1,14 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { getAdminCourseSummaries } from "@/lib/data";
 
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ created?: string }>;
+  searchParams: Promise<{ created?: string; updated?: string }>;
 }) {
   const courses = await getAdminCourseSummaries();
-  const { created } = await searchParams;
+  const { created, updated } = await searchParams;
 
   return (
     <>
@@ -21,7 +21,7 @@ export default async function AdminPage({
             <Plus size={16} /> 新建课程
           </Link>
         </div>
-        {created && (
+        {(created || updated) && (
           <p
             style={{
               marginTop: 28,
@@ -30,7 +30,7 @@ export default async function AdminPage({
               background: "#e4f7d8",
             }}
           >
-            课程已成功创建。
+            {updated ? "课程已成功更新。" : "课程已成功创建。"}
           </p>
         )}
         <section className="stats">
@@ -68,13 +68,22 @@ export default async function AdminPage({
                   {course.instructor}
                 </span>
               </div>
-              <Link
-                className="button secondary"
-                href={`/courses/${encodeURIComponent(course.slug)}`}
-                prefetch
-              >
-                查看课程详情
-              </Link>
+              <div className="course-admin-actions">
+                <Link
+                  className="button secondary"
+                  href={`/admin/courses/${course.id}/edit`}
+                  prefetch
+                >
+                  <Pencil size={15} /> 编辑
+                </Link>
+                <Link
+                  className="button secondary"
+                  href={`/courses/${encodeURIComponent(course.slug)}`}
+                  prefetch
+                >
+                  查看详情
+                </Link>
+              </div>
             </article>
           ))}
         </div>

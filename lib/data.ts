@@ -47,6 +47,8 @@ type CourseRow = {
           id: string;
           filename: string;
           storage_path: string;
+          size_bytes: number;
+          mime_type: string | null;
         }>;
     }>;
   }>;
@@ -73,6 +75,8 @@ function mapCourse(row: CourseRow): Course {
             id: attachment.id,
             filename: attachment.filename,
             storagePath: attachment.storage_path,
+            sizeBytes: attachment.size_bytes,
+            mimeType: attachment.mime_type ?? "application/octet-stream",
           })),
         })),
     }));
@@ -170,6 +174,23 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
     .from("courses")
     .select("*, course_images(*), chapters(*, lessons(*, attachments(*)))")
     .eq("slug", slug)
+    .single();
+
+  if (error || !data) return null;
+  return mapCourse(data as CourseRow);
+}
+
+export async function getCourseById(id: string): Promise<Course | null> {
+  if (!isSupabaseConfigured) {
+    return demoCourses.find((course) => course.id === id) ?? null;
+  }
+
+  const supabase = await createClient();
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("courses")
+    .select("*, course_images(*), chapters(*, lessons(*, attachments(*)))")
+    .eq("id", id)
     .single();
 
   if (error || !data) return null;

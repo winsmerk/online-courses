@@ -43,7 +43,10 @@ const courseSchema = z.object({
   ),
 });
 
-export async function POST(request: Request) {
+async function handleCourseRequest(
+  request: Request,
+  mode: "create" | "update",
+) {
   const viewer = await getViewer();
   if (!viewer || viewer.role !== "admin" || viewer.demo) {
     return NextResponse.json({ error: "无权执行此操作" }, { status: 403 });
@@ -76,8 +79,7 @@ export async function POST(request: Request) {
     0,
   );
 
-  const { error: courseError } = await admin.from("courses").insert({
-    id: course.id,
+  const coursePayload = {
     title: course.title,
     slug: course.slug,
     subtitle: course.subtitle,
@@ -88,10 +90,41 @@ export async function POST(request: Request) {
     status: course.status,
     cover_url: course.coverUrl || null,
     duration_minutes: durationMinutes,
-    created_by: viewer.id,
-  });
+  };
+  const courseMutation =
+    mode === "create"
+      ? admin.from("courses").insert({
+          id: course.id,
+          ...coursePayload,
+          created_by: viewer.id,
+        })
+      : admin
+          .from("courses")
+          .update(coursePayload)
+          .eq("id", course.id)
+          .select("id")
+          .single();
+  const { error: courseError } = await courseMutation;
   if (courseError) {
     return NextResponse.json({ error: courseError.message }, { status: 400 });
+  }
+
+  if (mode === "update") {
+    const [{ error: imageDeleteError }, { error: chapterDeleteError }] =
+      await Promise.all([
+        admin.from("course_images").delete().eq("course_id", course.id),
+        admin.from("chapters").delete().eq("course_id", course.id),
+      ]);
+    const deleteError = imageDeleteError ?? chapterDeleteError;
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 400 });
+    }
+  }
+
+  async function rollbackNewCourse() {
+    if (mode === "create" && admin) {
+      await admin.from("courses").delete().eq("id", course.id);
+    }
   }
 
   const chapters = course.chapters.map((chapter) => ({
@@ -102,7 +135,7 @@ export async function POST(request: Request) {
   }));
   const { error: chapterError } = await admin.from("chapters").insert(chapters);
   if (chapterError) {
-    await admin.from("courses").delete().eq("id", course.id);
+    await rollbackNewCourse();
     return NextResponse.json({ error: chapterError.message }, { status: 400 });
   }
 
@@ -115,7 +148,7 @@ export async function POST(request: Request) {
       })),
     );
     if (imageError) {
-      await admin.from("courses").delete().eq("id", course.id);
+      await rollbackNewCourse();
       return NextResponse.json({ error: imageError.message }, { status: 400 });
     }
   }
@@ -135,7 +168,7 @@ export async function POST(request: Request) {
   );
   const { error: lessonError } = await admin.from("lessons").insert(lessons);
   if (lessonError) {
-    await admin.from("courses").delete().eq("id", course.id);
+    await rollbackNewCourse();
     return NextResponse.json({ error: lessonError.message }, { status: 400 });
   }
 
@@ -156,7 +189,7 @@ export async function POST(request: Request) {
       .from("attachments")
       .insert(attachments);
     if (attachmentError) {
-      await admin.from("courses").delete().eq("id", course.id);
+      await rollbackNewCourse();
       return NextResponse.json(
         { error: attachmentError.message },
         { status: 400 },
@@ -164,5 +197,16 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json({ id: course.id, slug: course.slug }, { status: 201 });
+  return NextResponse.json(
+    { id: course.id, slug: course.slug },
+    { status: mode === "create" ? 201 : 200 },
+  );
+}
+
+export async function POST(request: Request) {
+  return handleCourseRequest(request, "create");
+}
+
+export async function PUT(request: Request) {
+  return handleCourseRequest(request, "update");
 }

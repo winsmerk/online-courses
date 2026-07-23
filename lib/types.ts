@@ -11,6 +11,8 @@ export type Lesson = {
     id: string;
     filename: string;
     storagePath: string;
+    sizeBytes?: number;
+    mimeType?: string;
   }>;
 };
 
