@@ -199,24 +199,46 @@ export async function getCourseById(id: string): Promise<Course | null> {
 
 export async function getEnrollments(
   userId: string,
+  role: "student" | "admin" = "student",
 ): Promise<EnrollmentCourse[]> {
-  if (!isSupabaseConfigured) return demoEnrollments;
+  if (!isSupabaseConfigured) {
+    if (role === "student") return demoEnrollments;
+    return demoCourses.map((course) => ({
+      ...course,
+      progress: 0,
+      learningStatus: "待学习" as const,
+    }));
+  }
 
   const supabase = await createClient();
   if (!supabase) return [];
 
-  const { data, error } = await supabase
-    .from("enrollments")
-    .select("course:courses(*, course_images(*), chapters(*, lessons(*, attachments(*))))")
-    .eq("user_id", userId)
-    .eq("status", "active");
+  let courses: Course[];
+  if (role === "admin") {
+    const { data, error } = await supabase
+      .from("courses")
+      .select("*, course_images(*), chapters(*, lessons(*, attachments(*)))")
+      .order("created_at", { ascending: false });
+    if (error || !data) return [];
+    courses = (data as CourseRow[]).map(mapCourse);
+  } else {
+    const { data, error } = await supabase
+      .from("enrollments")
+      .select(
+        "course:courses(*, course_images(*), chapters(*, lessons(*, attachments(*)))",
+      )
+      .eq("user_id", userId)
+      .eq("status", "active");
 
-  if (error || !data) return [];
-
-  const courses = data
-    .map((item) => item.course)
-    .filter(Boolean)
-    .map((row) => mapCourse(row as unknown as CourseRow));
+    if (error || !data) return [];
+    const enrollmentRows = data as unknown as Array<{
+      course: CourseRow | null;
+    }>;
+    courses = enrollmentRows
+      .map((item) => item.course)
+      .filter(Boolean)
+      .map((row) => mapCourse(row as unknown as CourseRow));
+  }
 
   const lessonIds = courses.flatMap((course) =>
     course.chapters.flatMap((chapter) =>
@@ -251,4 +273,27 @@ export async function getEnrollments(
         progress === 0 ? "待学习" : progress === 100 ? "已完成" : "学习中",
     };
   });
+}
+
+export async function canAccessCourse(
+  userId: string,
+  courseId: string,
+  role: "student" | "admin",
+): Promise<boolean> {
+  if (role === "admin") return true;
+  if (!isSupabaseConfigured) {
+    return demoEnrollments.some((course) => course.id === courseId);
+  }
+
+  const supabase = await createClient();
+  if (!supabase) return false;
+  const { data, error } = await supabase
+    .from("enrollments")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("course_id", courseId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  return !error && Boolean(data);
 }

@@ -8,7 +8,7 @@ import { requireViewer } from "@/lib/viewer";
 
 export default async function DashboardPage() {
   const viewer = await requireViewer();
-  const courses = await getEnrollments(viewer.id);
+  const courses = await getEnrollments(viewer.id, viewer.role);
 
   const stats = {
     all: courses.length,
@@ -31,7 +31,7 @@ export default async function DashboardPage() {
         </div>
         <section className="stats" aria-label="学习数据">
           <div className="stat">
-            <span>我的课程</span>
+            <span>{viewer.role === "admin" ? "全部课程" : "我的课程"}</span>
             <strong>{stats.all}</strong>
           </div>
           <div className="stat">
@@ -44,7 +44,7 @@ export default async function DashboardPage() {
           </div>
         </section>
         <h2 style={{ fontFamily: "var(--font-serif)", marginBottom: 20 }}>
-          我的课程
+          {viewer.role === "admin" ? "全部课程" : "我的课程"}
         </h2>
         <section className="learning-list">
           {courses.map((course) => {

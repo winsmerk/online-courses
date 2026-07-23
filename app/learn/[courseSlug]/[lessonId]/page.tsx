@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, Circle, Play } from "lucide-react";
-import { notFound } from "next/navigation";
-import { getCourseBySlug } from "@/lib/data";
+import { notFound, redirect } from "next/navigation";
+import { canAccessCourse, getCourseBySlug } from "@/lib/data";
 import { requireViewer } from "@/lib/viewer";
 import { createAdminClient } from "@/lib/supabase/server";
 import { completeLesson } from "@/app/actions/progress";
@@ -40,10 +40,12 @@ export default async function LearnPage({
 }: {
   params: Promise<{ courseSlug: string; lessonId: string }>;
 }) {
-  await requireViewer();
+  const viewer = await requireViewer();
   const { courseSlug, lessonId } = await params;
   const course = await getCourseBySlug(courseSlug);
   if (!course) notFound();
+  const hasAccess = await canAccessCourse(viewer.id, course.id, viewer.role);
+  if (!hasAccess) redirect("/dashboard");
   const lessons = course.chapters.flatMap((chapter) => chapter.lessons);
   const lesson = lessons.find((item) => item.id === lessonId);
   if (!lesson) notFound();
