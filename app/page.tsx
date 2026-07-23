@@ -87,7 +87,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section" id="courses">
+      <section className="section home-courses" id="courses">
         <div className="shell">
           <div className="section-heading">
             <div>
