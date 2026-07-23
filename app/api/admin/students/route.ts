@@ -2,10 +2,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/server";
 import { getViewer } from "@/lib/viewer";
+import { DEFAULT_STUDENT_PASSWORD } from "@/lib/auth-defaults";
 
 const createStudentSchema = z.object({
   email: z.string().email("请输入有效邮箱"),
-  password: z.string().min(8, "密码至少需要 8 位"),
+  password: z
+    .string()
+    .min(8, "密码至少需要 8 位")
+    .default(DEFAULT_STUDENT_PASSWORD),
   displayName: z.string().trim().min(1, "请输入姓名"),
 });
 

@@ -11,6 +11,7 @@ import {
   Search,
 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
+import { DEFAULT_STUDENT_PASSWORD } from "@/lib/auth-defaults";
 
 type Student = {
   id: string;
@@ -223,7 +224,8 @@ export function AdminStudentManager() {
               type="password"
               minLength={8}
               required
-              placeholder={t("至少 8 位")}
+              defaultValue={DEFAULT_STUDENT_PASSWORD}
+              autoComplete="new-password"
             />
           </label>
           <button className="button dark" disabled={submitting} type="submit">
