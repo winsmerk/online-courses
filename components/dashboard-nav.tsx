@@ -17,6 +17,7 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
         href="/dashboard"
         prefetch
         className={pathname === "/dashboard" ? "active" : ""}
+        aria-current={pathname === "/dashboard" ? "page" : undefined}
       >
         <BookOpen size={16} /> 我的学习
       </Link>
@@ -30,6 +31,11 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
                 ? "active"
                 : ""
             }
+            aria-current={
+              pathname === "/admin" || pathname.startsWith("/admin/courses")
+                ? "page"
+                : undefined
+            }
           >
             <Upload size={16} /> 课程管理
           </Link>
@@ -37,6 +43,9 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
             href="/admin/users"
             prefetch
             className={pathname.startsWith("/admin/users") ? "active" : ""}
+            aria-current={
+              pathname.startsWith("/admin/users") ? "page" : undefined
+            }
           >
             <Users size={16} /> 账号管理
           </Link>
@@ -46,6 +55,7 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
         href="/settings"
         prefetch
         className={pathname === "/settings" ? "active" : ""}
+        aria-current={pathname === "/settings" ? "page" : undefined}
         title="账号设置"
       >
         <Settings size={16} /> 账号设置

@@ -250,7 +250,7 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values
   ('course-images', 'course-images', true, 10485760, array['image/jpeg', 'image/png', 'image/webp', 'image/gif']),
   ('course-files', 'course-files', false, 104857600, null),
-  ('course-videos', 'course-videos', false, 1073741824, array['video/mp4', 'video/webm'])
+  ('course-videos', 'course-videos', false, 1073741824, array['video/mp4', 'video/webm', 'video/quicktime', 'video/x-quicktime', 'application/octet-stream'])
 on conflict (id) do nothing;
 
 create policy "public_course_images"

@@ -59,7 +59,9 @@ export default async function AdminPage({
               key={course.id}
             >
               <div>
-                <span className="filter-pill">{course.status}</span>
+                <span className={`course-status ${course.status}`}>
+                  {course.status === "published" ? "已发布" : "草稿"}
+                </span>
                 <h3>{course.title}</h3>
                 <span className="progress-label">
                   {course.chapterCount} 个章节 · {course.lessonCount} 节课 ·{" "}

@@ -33,6 +33,14 @@ const makeChapter = (): ChapterDraft => ({
   lessons: [makeLesson()],
 });
 
+function getVideoContentType(file: File) {
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  if (extension === "mov") return "video/quicktime";
+  if (extension === "webm") return "video/webm";
+  if (extension === "mp4") return "video/mp4";
+  return file.type || "application/octet-stream";
+}
+
 async function uploadVideoResumable(
   file: File,
   bucketName: string,
@@ -61,7 +69,7 @@ async function uploadVideoResumable(
       metadata: {
         bucketName,
         objectName,
-        contentType: file.type || "video/mp4",
+        contentType: getVideoContentType(file),
         cacheControl: "3600",
       },
       onError: reject,
@@ -148,7 +156,8 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
         for (const [lessonIndex, lesson] of chapter.lessons.entries()) {
           let videoPath = "";
           if (lesson.videoFile) {
-            const extension = lesson.videoFile.name.split(".").pop() ?? "mp4";
+            const extension =
+              lesson.videoFile.name.split(".").pop()?.toLowerCase() ?? "mp4";
             videoPath = `${courseId}/${lesson.id}.${extension}`;
             setStatus(`正在上传视频：${lesson.title || lesson.videoFile.name}`);
             await uploadVideoResumable(
@@ -269,7 +278,7 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
       <div className="field">
         <label htmlFor="intro-images">课程介绍图片（可多选）</label>
         <input
-          className="input"
+          className="input file-input"
           id="intro-images"
           type="file"
           accept="image/*"
@@ -292,7 +301,7 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
       <div className="field">
         <label htmlFor="cover">课程封面</label>
         <input
-          className="input"
+          className="input file-input"
           id="cover"
           type="file"
           accept="image/*"
@@ -407,7 +416,7 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
                 <div className="field">
                   <label>课程附件（文档或压缩包，可多选）</label>
                   <input
-                    className="input"
+                    className="input file-input"
                     type="file"
                     multiple
                     accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.7z"
@@ -433,9 +442,9 @@ export function AdminCourseEditor({ demo }: { demo: boolean }) {
                     <UploadCloud size={15} /> 视频文件
                   </label>
                   <input
-                    className="input"
+                    className="input file-input"
                     type="file"
-                    accept="video/mp4,video/webm"
+                    accept=".mp4,.webm,.mov,video/mp4,video/webm,video/quicktime,video/x-quicktime"
                     onChange={(event) =>
                       updateChapter(chapter.id, (current) => ({
                         ...current,

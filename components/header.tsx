@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PublicNav } from "@/components/public-nav";
 import { getViewer } from "@/lib/viewer";
 
 export async function Header({ dark = true }: { dark?: boolean }) {
@@ -13,20 +14,10 @@ export async function Header({ dark = true }: { dark?: boolean }) {
         <span className="logo-mark">B</span>
         <span>Beyond Wild</span>
       </Link>
-      <nav className="nav" aria-label="主导航">
-        <Link href="/courses">全部课程</Link>
-        <Link href="/#method">学习方式</Link>
-        <Link href="/enroll">微信报名</Link>
-        {viewer ? (
-          <Link className="nav-cta" href="/dashboard">
-            {viewer.role === "admin" ? "管理中心" : "我的学习"}
-          </Link>
-        ) : (
-          <Link className="nav-cta" href="/login">
-            登录
-          </Link>
-        )}
-      </nav>
+      <PublicNav
+        signedIn={Boolean(viewer)}
+        isAdmin={viewer?.role === "admin"}
+      />
     </header>
   );
 }
