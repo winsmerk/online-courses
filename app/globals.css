@@ -10,8 +10,8 @@
   --lime: #dcebc2;
   --coral: #91bda4;
   --radius: 22px;
-  --font-sans: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
-    system-ui, sans-serif;
+  --font-sans:
+    "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
   --font-serif: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
 }
 
@@ -157,7 +157,9 @@ img {
   color: inherit;
   background: rgba(255, 255, 255, 0.06);
   font: inherit;
-  transition: border-color 0.18s ease, background 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
 }
 
 .language-switcher:hover {
@@ -276,7 +278,9 @@ img {
   color: var(--ink);
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
 }
 
 .button:hover,
@@ -610,8 +614,13 @@ img {
   overflow: hidden;
   border: 1px solid rgba(5, 83, 48, 0.08);
   border-radius: 32px;
-  background:
-    linear-gradient(145deg, #ffffff 0%, #ffffff 68%, #edf5f0 68%, #edf5f0 100%);
+  background: linear-gradient(
+    145deg,
+    #ffffff 0%,
+    #ffffff 68%,
+    #edf5f0 68%,
+    #edf5f0 100%
+  );
   box-shadow: 0 24px 64px rgba(5, 83, 48, 0.13);
 }
 
@@ -755,7 +764,9 @@ img {
   border-radius: var(--radius);
   background: white;
   box-shadow: 0 10px 34px rgba(5, 83, 48, 0.06);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .course-card:hover {
@@ -1167,7 +1178,11 @@ img {
   flex-direction: column;
   justify-content: space-between;
   background:
-    radial-gradient(circle at 30% 70%, rgba(151, 198, 170, 0.32), transparent 28%),
+    radial-gradient(
+      circle at 30% 70%,
+      rgba(151, 198, 170, 0.32),
+      transparent 28%
+    ),
     var(--ink);
 }
 
@@ -1392,7 +1407,9 @@ img {
   border-radius: 10px;
   color: #b7cdbf;
   font-size: 14px;
-  transition: color 0.18s ease, background 0.18s ease;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease;
 }
 
 .sidebar-nav a.active {
@@ -1873,6 +1890,9 @@ img {
   border-radius: 18px;
   place-items: center;
   background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .video-frame iframe {
