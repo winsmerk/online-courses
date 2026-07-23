@@ -86,7 +86,7 @@ img {
   left: 0;
   height: 82px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(5, 83, 48, 0.94);
+  background: #055330;
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
