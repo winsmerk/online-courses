@@ -49,6 +49,12 @@ export default async function DashboardPage() {
         <section className="learning-list">
           {courses.map((course) => {
             const firstLesson = course.chapters[0]?.lessons[0];
+            const statusClass =
+              course.learningStatus === "已完成"
+                ? "completed"
+                : course.learningStatus === "学习中"
+                  ? "in-progress"
+                  : "not-started";
             return (
               <article className="learning-card" key={course.id}>
                 <Image
@@ -58,7 +64,12 @@ export default async function DashboardPage() {
                   alt={course.title}
                 />
                 <div>
-                  <span className="filter-pill">{course.learningStatus}</span>
+                  <span
+                    className={`learning-status ${statusClass}`}
+                    aria-label={`学习状态：${course.learningStatus}`}
+                  >
+                    {course.learningStatus}
+                  </span>
                   <h3>{course.title}</h3>
                   <div className="progress-track">
                     <div
