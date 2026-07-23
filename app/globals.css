@@ -2080,6 +2080,12 @@ img {
   color: white;
 }
 
+.learn-lesson.completed > svg {
+  flex: 0 0 auto;
+  color: #c9ebd5;
+  stroke-width: 2.5;
+}
+
 .admin-form {
   width: min(1100px, 100%);
   margin-top: 36px;

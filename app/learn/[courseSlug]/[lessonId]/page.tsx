@@ -44,7 +44,7 @@ export default async function LearnPage({
 }) {
   const viewer = await requireViewer();
   const { courseSlug, lessonId } = await params;
-  const course = await getCourseBySlug(courseSlug);
+  const course = await getCourseBySlug(courseSlug, viewer.id);
   if (!course) notFound();
   const hasAccess = await canAccessCourse(viewer.id, course.id, viewer.role);
   if (!hasAccess) redirect("/dashboard");
@@ -128,7 +128,7 @@ export default async function LearnPage({
               <Link
                 key={item.id}
                 href={`/learn/${course.slug}/${item.id}`}
-                className={`learn-lesson ${
+                className={`learn-lesson ${item.completed ? "completed" : ""} ${
                   item.id === lesson.id ? "active" : ""
                 }`}
               >

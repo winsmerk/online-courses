@@ -163,7 +163,10 @@ export async function getAdminCourseSummaries(): Promise<AdminCourseSummary[]> {
   }));
 }
 
-export async function getCourseBySlug(slug: string): Promise<Course | null> {
+export async function getCourseBySlug(
+  slug: string,
+  userId?: string,
+): Promise<Course | null> {
   if (!isSupabaseConfigured) {
     return demoCourses.find((course) => course.slug === slug) ?? null;
   }
@@ -177,7 +180,35 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
     .single();
 
   if (error || !data) return null;
-  return mapCourse(data as CourseRow);
+  const course = mapCourse(data as CourseRow);
+  if (!userId) return course;
+
+  const lessonIds = course.chapters.flatMap((chapter) =>
+    chapter.lessons.map((lesson) => lesson.id),
+  );
+  if (!lessonIds.length) return course;
+
+  const { data: progressRows } = await supabase
+    .from("lesson_progress")
+    .select("lesson_id, completed")
+    .eq("user_id", userId)
+    .eq("completed", true)
+    .in("lesson_id", lessonIds);
+
+  const completedIds = new Set(
+    (progressRows ?? []).map((row) => row.lesson_id),
+  );
+
+  return {
+    ...course,
+    chapters: course.chapters.map((chapter) => ({
+      ...chapter,
+      lessons: chapter.lessons.map((lesson) => ({
+        ...lesson,
+        completed: completedIds.has(lesson.id),
+      })),
+    })),
+  };
 }
 
 export async function getCourseById(id: string): Promise<Course | null> {

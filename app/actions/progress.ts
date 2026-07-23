@@ -28,6 +28,8 @@ export async function completeLesson(formData: FormData) {
     }
   }
 
+  const safeReturnTo = returnTo.startsWith("/") ? returnTo : "/dashboard";
   revalidatePath("/dashboard");
-  redirect(returnTo.startsWith("/") ? returnTo : "/dashboard");
+  revalidatePath(safeReturnTo);
+  redirect(safeReturnTo);
 }
