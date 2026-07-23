@@ -139,7 +139,7 @@ export default async function HomePage() {
             <Link className="button" href="#enroll">
               <Sparkles size={17} /> {t("微信报名")}
             </Link>
-            <div style={{ marginTop: 26, color: "#aab1c9", fontSize: 13 }}>
+            <div style={{ marginTop: 26, color: "#b7cdbf", fontSize: 13 }}>
               <Check size={15} style={{ verticalAlign: "middle" }} />{" "}
               {t("人工确认课程与账号")}
             </div>

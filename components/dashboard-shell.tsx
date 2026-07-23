@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Viewer } from "@/lib/types";
+import { BrandLogo } from "@/components/brand-logo";
 import { DashboardNav } from "@/components/dashboard-nav";
 
 export function DashboardShell({
@@ -13,9 +14,8 @@ export function DashboardShell({
   return (
     <div className="dashboard-layout">
       <aside className="sidebar">
-        <Link href="/" className="logo">
-          <span className="logo-mark">B</span>
-          <span>Beyond Wild</span>
+        <Link href="/" className="brand-logo-link" aria-label="Beyond Wild">
+          <BrandLogo priority />
         </Link>
         <DashboardNav role={viewer.role} />
       </aside>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import { getServerI18n } from "@/lib/i18n-server";
 
 export async function Footer() {
@@ -9,9 +10,8 @@ export async function Footer() {
       <div className="shell">
         <div className="footer-grid">
           <div>
-            <Link href="/" className="logo">
-              <span className="logo-mark">B</span>
-              <span>Beyond Wild</span>
+            <Link href="/" className="brand-logo-link" aria-label="Beyond Wild">
+              <BrandLogo />
             </Link>
             <p>{t("把真实经验整理成清晰方法，让每一次学习都能沉淀为长期能力。")}</p>
           </div>

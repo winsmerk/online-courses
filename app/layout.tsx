@@ -18,6 +18,10 @@ export async function generateMetadata(): Promise<Metadata> {
       locale === "en"
         ? "High-quality online courses for creators and professionals in branding, communication, and growth."
         : "面向创作者与专业人士的高质量在线课程，系统学习品牌、表达与增长。",
+    icons: {
+      icon: "/beyond-wild-logo.jpg",
+      apple: "/beyond-wild-logo.jpg",
+    },
   };
 }
 

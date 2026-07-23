@@ -61,7 +61,7 @@ export default async function LearnPage({
           <Link href="/dashboard" className="course-link">
             <ChevronLeft size={16} /> {t("返回我的学习")}
           </Link>
-          <span style={{ color: "#7f87a3", fontSize: 12 }}>
+          <span style={{ color: "#9bb7a7", fontSize: 12 }}>
             {course.title}
           </span>
         </div>
@@ -139,7 +139,7 @@ export default async function LearnPage({
                 <span>
                   {item.title}
                   <small
-                    style={{ display: "block", color: "#737c9b", marginTop: 3 }}
+                    style={{ display: "block", color: "#8fac9c", marginTop: 3 }}
                   >
                     {item.durationMinutes} {t("分钟")}
                   </small>

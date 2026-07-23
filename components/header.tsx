@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import { PublicNav } from "@/components/public-nav";
 import { getServerI18n } from "@/lib/i18n-server";
 import { getViewer } from "@/lib/viewer";
@@ -16,11 +17,10 @@ export async function Header({ dark = true }: { dark?: boolean }) {
         <div className="shell site-header-inner">
           <Link
             href="/"
-            className="logo"
+            className="brand-logo-link"
             aria-label={`Beyond Wild ${t("首页")}`}
           >
-            <span className="logo-mark">B</span>
-            <span>Beyond Wild</span>
+            <BrandLogo priority />
           </Link>
           <PublicNav
             signedIn={Boolean(viewer)}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signIn } from "@/app/actions/auth";
+import { BrandLogo } from "@/components/brand-logo";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { getServerI18n } from "@/lib/i18n-server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -15,9 +16,8 @@ export default async function LoginPage({
   return (
     <main className="auth-page">
       <section className="auth-brand">
-        <Link href="/" className="logo">
-          <span className="logo-mark">B</span>
-          <span>Beyond Wild</span>
+        <Link href="/" className="brand-logo-link" aria-label="Beyond Wild">
+          <BrandLogo priority />
         </Link>
         <h1>{t("继续学习，让每一步都有积累。")}</h1>
         <p style={{ color: "#8f97b0" }}>{t("系统课程 · 随时回看 · 自动保存进度")}</p>
@@ -61,7 +61,7 @@ export default async function LoginPage({
           </button>
           <p className="form-help">
             {t("还没有账号？请前往")}
-            <Link href="/enroll" style={{ color: "#1677c8" }}>
+            <Link href="/enroll" style={{ color: "var(--blue-strong)" }}>
               {" "}
               {t("微信报名页面")}
             </Link>
