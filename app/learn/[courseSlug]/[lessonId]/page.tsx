@@ -6,6 +6,7 @@ import { getServerI18n } from "@/lib/i18n-server";
 import { requireViewer } from "@/lib/viewer";
 import { createAdminClient } from "@/lib/supabase/server";
 import { completeLesson } from "@/app/actions/progress";
+import { LessonVideoPlayer } from "@/components/lesson-video-player";
 
 async function getSignedVideoUrl(path?: string | null) {
   if (!path) return null;
@@ -65,10 +66,10 @@ export default async function LearnPage({
             {course.title}
           </span>
         </div>
-        <div className="video-frame">
-          {videoUrl ? (
-            <video src={videoUrl} controls preload="metadata" />
-          ) : (
+        {videoUrl ? (
+          <LessonVideoPlayer src={videoUrl} />
+        ) : (
+          <div className="video-frame">
             <div className="video-placeholder">
               <span className="play-circle">
                 <Play size={28} fill="currentColor" />
@@ -76,8 +77,8 @@ export default async function LearnPage({
               <strong>{t("课程视频")}</strong>
               <p>{t("管理员上传视频后将在这里播放")}</p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
         <article className="lesson-copy">
           <p className="eyebrow" style={{ color: "var(--blue)" }}>
             Lesson

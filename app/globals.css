@@ -1880,6 +1880,73 @@ img {
   border: 0;
 }
 
+.lesson-video-player {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: #043a27;
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.22);
+}
+
+.lesson-video-player .video-frame {
+  border-radius: 0;
+}
+
+.video-toolbar {
+  min-height: 58px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #043a27;
+}
+
+.video-control-button,
+.playback-rate-control {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.video-control-button {
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.video-control-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.video-control-button:focus-visible,
+.playback-rate-control select:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.playback-rate-control select {
+  min-width: 78px;
+  height: 38px;
+  padding: 0 30px 0 11px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  background: #0a5f3f;
+}
+
+.playback-rate-control select option {
+  color: var(--ink);
+  background: white;
+}
+
 .video-placeholder {
   text-align: center;
   color: #c6dbcf;
@@ -2265,6 +2332,14 @@ img {
 
   .learn-main {
     padding: 18px 14px 45px;
+  }
+
+  .video-toolbar {
+    align-items: stretch;
+  }
+
+  .playback-rate-control > span {
+    display: none;
   }
 
   .learn-sidebar {

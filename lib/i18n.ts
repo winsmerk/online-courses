@@ -148,6 +148,10 @@ const english: Record<string, string> = {
   确认退出: "Log out",
   返回我的学习: "Back to my learning",
   课程视频: "Course video",
+  视频播放控制: "Video controls",
+  播放: "Play",
+  暂停: "Pause",
+  播放速度: "Playback speed",
   管理员上传视频后将在这里播放:
     "The video will appear here after it is uploaded by an administrator.",
   课程附件: "Course resources",
