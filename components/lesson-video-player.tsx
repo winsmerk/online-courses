@@ -14,6 +14,22 @@ import { useLanguage } from "@/components/language-provider";
 
 const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
+function formatTime(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
+  const totalSeconds = Math.floor(seconds);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const remainingSeconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(
+      remainingSeconds,
+    ).padStart(2, "0")}`;
+  }
+
+  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+}
+
 export function LessonVideoPlayer({ src }: { src: string }) {
   const playerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -22,6 +38,8 @@ export function LessonVideoPlayer({ src }: { src: string }) {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -68,6 +86,14 @@ export function LessonVideoPlayer({ src }: { src: string }) {
     setIsMuted(video.muted);
   }
 
+  function seekTo(nextTime: number) {
+    const video = videoRef.current;
+    if (!video) return;
+    const safeTime = Math.min(Math.max(nextTime, 0), duration || nextTime);
+    video.currentTime = safeTime;
+    setCurrentTime(safeTime);
+  }
+
   async function toggleFullscreen() {
     if (document.fullscreenElement) {
       await document.exitFullscreen();
@@ -93,6 +119,17 @@ export function LessonVideoPlayer({ src }: { src: string }) {
           src={src}
           playsInline
           preload="metadata"
+          onLoadedMetadata={(event) => {
+            const nextDuration = event.currentTarget.duration;
+            setDuration(Number.isFinite(nextDuration) ? nextDuration : 0);
+          }}
+          onDurationChange={(event) => {
+            const nextDuration = event.currentTarget.duration;
+            setDuration(Number.isFinite(nextDuration) ? nextDuration : 0);
+          }}
+          onTimeUpdate={(event) =>
+            setCurrentTime(event.currentTarget.currentTime)
+          }
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onEnded={() => setIsPlaying(false)}
@@ -104,6 +141,25 @@ export function LessonVideoPlayer({ src }: { src: string }) {
             setIsMuted(event.currentTarget.muted);
           }}
         />
+      </div>
+      <div className="video-progress-row">
+        <time dateTime={`PT${Math.floor(currentTime)}S`}>
+          {formatTime(currentTime)}
+        </time>
+        <input
+          type="range"
+          min="0"
+          max={duration || 0}
+          step="0.1"
+          value={Math.min(currentTime, duration || 0)}
+          onChange={(event) => seekTo(Number(event.target.value))}
+          aria-label={t("视频进度")}
+          aria-valuetext={`${formatTime(currentTime)} / ${formatTime(duration)}`}
+          disabled={!duration}
+        />
+        <time dateTime={`PT${Math.floor(duration)}S`}>
+          {formatTime(duration)}
+        </time>
       </div>
       <div className="video-toolbar" aria-label={t("视频播放控制")}>
         <div className="video-toolbar-group">

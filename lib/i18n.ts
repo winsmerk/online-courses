@@ -149,6 +149,7 @@ const english: Record<string, string> = {
   返回我的学习: "Back to my learning",
   课程视频: "Course video",
   视频播放控制: "Video controls",
+  视频进度: "Video progress",
   播放: "Play",
   暂停: "Pause",
   播放速度: "Playback speed",

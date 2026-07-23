@@ -1922,6 +1922,35 @@ img {
   justify-content: center;
 }
 
+.video-progress-row {
+  padding: 12px 16px 2px;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 10px;
+  color: #d7e8dd;
+  background: #043a27;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+.video-progress-row time:last-child {
+  text-align: right;
+}
+
+.video-progress-row input {
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--blue);
+}
+
+.video-progress-row input:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
 .video-toolbar {
   min-height: 58px;
   padding: 10px 14px;
@@ -1974,6 +2003,7 @@ img {
 
 .video-control-button:focus-visible,
 .video-icon-button:focus-visible,
+.video-progress-row input:focus-visible,
 .volume-control input:focus-visible,
 .playback-rate-control select:focus-visible {
   outline: 2px solid var(--blue);
@@ -2406,6 +2436,13 @@ img {
     align-items: stretch;
     flex-wrap: wrap;
     gap: 10px;
+  }
+
+  .video-progress-row {
+    padding-inline: 12px;
+    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    gap: 7px;
+    font-size: 11px;
   }
 
   .video-toolbar-group {
