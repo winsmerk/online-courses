@@ -152,6 +152,11 @@ const english: Record<string, string> = {
   播放: "Play",
   暂停: "Pause",
   播放速度: "Playback speed",
+  音量: "Volume",
+  静音: "Mute",
+  取消静音: "Unmute",
+  进入全屏: "Enter fullscreen",
+  退出全屏: "Exit fullscreen",
   管理员上传视频后将在这里播放:
     "The video will appear here after it is uploaded by an administrator.",
   课程附件: "Course resources",

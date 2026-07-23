@@ -1905,6 +1905,23 @@ img {
   border-radius: 0;
 }
 
+.lesson-video-player:fullscreen {
+  display: flex;
+  flex-direction: column;
+  border: 0;
+  border-radius: 0;
+  background: #000;
+}
+
+.lesson-video-player:fullscreen .video-frame {
+  min-height: 0;
+  flex: 1;
+  aspect-ratio: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .video-toolbar {
   min-height: 58px;
   padding: 10px 14px;
@@ -1913,6 +1930,12 @@ img {
   justify-content: space-between;
   gap: 16px;
   background: #043a27;
+}
+
+.video-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .video-control-button,
@@ -1926,7 +1949,8 @@ img {
   font-weight: 650;
 }
 
-.video-control-button {
+.video-control-button,
+.video-icon-button {
   padding: 8px 14px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 10px;
@@ -1934,14 +1958,39 @@ img {
   background: rgba(255, 255, 255, 0.08);
 }
 
-.video-control-button:hover {
+.video-icon-button {
+  width: 40px;
+  height: 38px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  color: white;
+}
+
+.video-control-button:hover,
+.video-icon-button:hover {
   background: rgba(255, 255, 255, 0.15);
 }
 
 .video-control-button:focus-visible,
+.video-icon-button:focus-visible,
+.volume-control input:focus-visible,
 .playback-rate-control select:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 2px;
+}
+
+.volume-control {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.volume-control input {
+  width: 104px;
+  cursor: pointer;
+  accent-color: var(--blue);
 }
 
 .playback-rate-control select {
@@ -2349,6 +2398,20 @@ img {
 
   .video-toolbar {
     align-items: stretch;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .video-toolbar-group {
+    gap: 7px;
+  }
+
+  .video-control-button span {
+    display: none;
+  }
+
+  .volume-control input {
+    width: 72px;
   }
 
   .playback-rate-control > span {
