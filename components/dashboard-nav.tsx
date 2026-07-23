@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Home, LogOut, Settings, Upload, Users } from "lucide-react";
+import {
+  BookOpen,
+  GraduationCap,
+  Home,
+  LogOut,
+  Settings,
+  ShieldCheck,
+  Upload,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import { LogoutButton } from "@/components/logout-button";
 
@@ -40,6 +48,16 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
             <Upload size={16} /> 课程管理
           </Link>
           <Link
+            href="/admin/students"
+            prefetch
+            className={pathname.startsWith("/admin/students") ? "active" : ""}
+            aria-current={
+              pathname.startsWith("/admin/students") ? "page" : undefined
+            }
+          >
+            <GraduationCap size={16} /> 学员管理
+          </Link>
+          <Link
             href="/admin/users"
             prefetch
             className={pathname.startsWith("/admin/users") ? "active" : ""}
@@ -47,7 +65,7 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
               pathname.startsWith("/admin/users") ? "page" : undefined
             }
           >
-            <Users size={16} /> 账号管理
+            <ShieldCheck size={16} /> 管理员账号
           </Link>
         </>
       )}

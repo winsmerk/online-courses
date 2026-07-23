@@ -27,7 +27,11 @@ export function AdminUserManager() {
     const response = await fetch("/api/admin/users", { cache: "no-store" });
     const result = await response.json();
     if (!response.ok) setError(result.error ?? "账号列表加载失败");
-    else setUsers(result.users);
+    else {
+      setUsers(
+        (result.users as ManagedUser[]).filter((user) => user.role === "admin"),
+      );
+    }
     setLoading(false);
   }, []);
 
@@ -48,7 +52,7 @@ export function AdminUserManager() {
         displayName: form.get("displayName"),
         email: form.get("email"),
         password: form.get("password"),
-        role: form.get("role"),
+        role: "admin",
       }),
     });
     const result = await response.json();
@@ -92,10 +96,13 @@ export function AdminUserManager() {
       <section className="admin-panel">
         <div>
           <span className="eyebrow">Create account</span>
-          <h2>创建登录账号</h2>
-          <p>邮箱会自动确认，不发送注册邮件。请通过安全方式把密码交给用户。</p>
+          <h2>创建管理员账号</h2>
+          <p>管理员可以管理课程与学员。邮箱会自动确认，不发送注册邮件。</p>
         </div>
-        <form className="user-create-form" onSubmit={createUser}>
+        <form
+          className="user-create-form admin-account-create-form"
+          onSubmit={createUser}
+        >
           <label>
             姓名
             <input name="displayName" required placeholder="例如：陈默" />
@@ -114,13 +121,6 @@ export function AdminUserManager() {
               placeholder="至少 8 位"
             />
           </label>
-          <label>
-            账号类型
-            <select name="role" defaultValue="student">
-              <option value="student">普通学员</option>
-              <option value="admin">管理员</option>
-            </select>
-          </label>
           <button className="button dark" disabled={submitting} type="submit">
             {submitting ? <LoaderCircle className="spin" size={16} /> : <Plus size={16} />}
             创建账号
@@ -138,7 +138,7 @@ export function AdminUserManager() {
         <div className="panel-heading">
           <div>
             <span className="eyebrow">Users</span>
-            <h2>现有账号</h2>
+            <h2>管理员列表</h2>
           </div>
           <button className="icon-button" onClick={() => void loadUsers()} title="刷新">
             <RefreshCw size={17} />
