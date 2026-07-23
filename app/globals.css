@@ -1358,6 +1358,83 @@ img {
   line-height: 1.6;
 }
 
+.media-preview-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.cover-preview-grid {
+  max-width: 360px;
+}
+
+.media-preview-card,
+.video-preview-card {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #dfe2eb;
+  border-radius: 14px;
+  background: #f8f9fc;
+}
+
+.media-image-frame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #e9ebf1;
+}
+
+.media-image-frame img {
+  object-fit: cover;
+}
+
+.media-preview-card figcaption,
+.video-preview-card figcaption {
+  padding: 10px 12px;
+  overflow: hidden;
+  color: #555d75;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.video-preview-card {
+  width: min(620px, 100%);
+  margin-top: 14px;
+  background: var(--ink);
+}
+
+.video-preview-card video {
+  width: 100%;
+  max-height: 360px;
+  display: block;
+  background: #030515;
+}
+
+.video-preview-card figcaption {
+  color: #d7dbee;
+  white-space: normal;
+}
+
+.video-preview-card figcaption small {
+  margin-top: 5px;
+  display: block;
+  color: #979fba;
+}
+
+.video-preview-loading {
+  width: min(620px, 100%);
+  margin-top: 14px;
+  padding: 34px 20px;
+  border: 1px dashed #cdd1dd;
+  border-radius: 14px;
+  color: #747a8e;
+  background: #f8f9fc;
+  text-align: center;
+  font-size: 13px;
+}
+
 .progress-track {
   height: 7px;
   margin: 13px 0 7px;

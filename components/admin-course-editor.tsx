@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import { Plus, Save, Trash2, UploadCloud } from "lucide-react";
 import * as tus from "tus-js-client";
 import { createClient } from "@/lib/supabase/browser";
@@ -48,6 +49,101 @@ function getVideoContentType(file: File) {
   if (extension === "webm") return "video/webm";
   if (extension === "mp4") return "video/mp4";
   return file.type || "application/octet-stream";
+}
+
+function useObjectUrl(file?: File | null) {
+  const [url, setUrl] = useState("");
+
+  useEffect(() => {
+    if (!file) {
+      setUrl("");
+      return;
+    }
+    const nextUrl = URL.createObjectURL(file);
+    setUrl(nextUrl);
+    return () => URL.revokeObjectURL(nextUrl);
+  }, [file]);
+
+  return url;
+}
+
+function MediaImagePreview({
+  src,
+  alt,
+  label,
+}: {
+  src: string;
+  alt: string;
+  label: string;
+}) {
+  return (
+    <figure className="media-preview-card">
+      <div className="media-image-frame">
+        <Image src={src} alt={alt} fill sizes="260px" unoptimized={src.startsWith("blob:")} />
+      </div>
+      <figcaption>{label}</figcaption>
+    </figure>
+  );
+}
+
+function LocalImagePreview({ file }: { file: File }) {
+  const url = useObjectUrl(file);
+  if (!url) return null;
+  return <MediaImagePreview src={url} alt={file.name} label={file.name} />;
+}
+
+function VideoPreview({
+  file,
+  storagePath,
+}: {
+  file?: File;
+  storagePath?: string | null;
+}) {
+  const localUrl = useObjectUrl(file);
+  const [uploadedUrl, setUploadedUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (file || !storagePath) {
+      setUploadedUrl("");
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    fetch(`/api/admin/media-preview?path=${encodeURIComponent(storagePath)}`)
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error ?? "视频预览加载失败");
+        if (!cancelled) setUploadedUrl(result.url);
+      })
+      .catch(() => {
+        if (!cancelled) setUploadedUrl("");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [file, storagePath]);
+
+  const url = localUrl || uploadedUrl;
+  if (loading) {
+    return <div className="video-preview-loading">正在加载已上传的视频…</div>;
+  }
+  if (!url) return null;
+
+  return (
+    <figure className="video-preview-card">
+      <video src={url} controls preload="metadata" />
+      <figcaption>
+        {file?.name ?? "已上传视频"}
+        {file?.name.toLowerCase().endsWith(".mov") ? (
+          <small>若当前浏览器无法播放 MOV，仍可正常上传保存。</small>
+        ) : null}
+      </figcaption>
+    </figure>
+  );
 }
 
 async function uploadVideoResumable(
@@ -124,6 +220,7 @@ export function AdminCourseEditor({
   const [introImageFiles, setIntroImageFiles] = useState<File[]>([]);
   const [status, setStatus] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const coverPreviewUrl = useObjectUrl(coverFile);
 
   function updateChapter(
     chapterId: string,
@@ -369,6 +466,25 @@ export function AdminCourseEditor({
             当前已有 {initialCourse.introImages.length} 张介绍图片；重新选择后将整体替换。
           </p>
         ) : null}
+        {(introImageFiles.length > 0 || initialCourse?.introImages.length) && (
+          <div className="media-preview-grid">
+            {introImageFiles.length
+              ? introImageFiles.map((file) => (
+                  <LocalImagePreview
+                    file={file}
+                    key={`${file.name}-${file.size}-${file.lastModified}`}
+                  />
+                ))
+              : initialCourse?.introImages.map((image, index) => (
+                  <MediaImagePreview
+                    src={image}
+                    alt={`已上传的课程介绍图片 ${index + 1}`}
+                    label={`已上传图片 ${index + 1}`}
+                    key={image}
+                  />
+                ))}
+          </div>
+        )}
       </div>
       <div className="field">
         <label htmlFor="description">课程介绍</label>
@@ -393,6 +509,15 @@ export function AdminCourseEditor({
         {initialCourse?.coverUrl ? (
           <p className="existing-file-note">未选择新图片时保留当前课程封面。</p>
         ) : null}
+        {(coverPreviewUrl || initialCourse?.coverUrl) && (
+          <div className="media-preview-grid cover-preview-grid">
+            <MediaImagePreview
+              src={coverPreviewUrl || initialCourse!.coverUrl}
+              alt="课程封面预览"
+              label={coverFile?.name ?? "当前课程封面"}
+            />
+          </div>
+        )}
       </div>
 
       <section className="form-section">
@@ -555,6 +680,10 @@ export function AdminCourseEditor({
                       未选择新视频时保留当前视频。
                     </p>
                   ) : null}
+                  <VideoPreview
+                    file={lesson.videoFile}
+                    storagePath={lesson.videoPath}
+                  />
                 </div>
               </div>
             ))}
