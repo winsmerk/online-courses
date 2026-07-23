@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import type { Viewer } from "./types";
 import { createClient } from "./supabase/server";
 import { isSupabaseConfigured } from "./supabase/config";
@@ -11,7 +12,7 @@ const demoViewer: Viewer = {
   demo: true,
 };
 
-export async function getViewer(): Promise<Viewer | null> {
+export const getViewer = cache(async (): Promise<Viewer | null> => {
   if (!isSupabaseConfigured) return demoViewer;
 
   const supabase = await createClient();
@@ -38,11 +39,11 @@ export async function getViewer(): Promise<Viewer | null> {
       "学员",
     role: profile?.role === "admin" ? "admin" : "student",
   };
-}
+});
 
-export async function requireViewer() {
+export async function requireViewer(next = "/dashboard") {
   const viewer = await getViewer();
-  if (!viewer) redirect("/login?next=/dashboard");
+  if (!viewer) redirect(`/login?next=${encodeURIComponent(next)}`);
   return viewer;
 }
 

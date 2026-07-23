@@ -3,7 +3,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { requireViewer } from "@/lib/viewer";
 
 export default async function SettingsPage() {
-  const viewer = await requireViewer();
+  const viewer = await requireViewer("/settings");
 
   return (
     <DashboardShell viewer={viewer}>
