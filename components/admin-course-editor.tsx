@@ -150,6 +150,7 @@ async function uploadVideoResumable(
   file: File,
   bucketName: string,
   objectName: string,
+  upsert = false,
 ) {
   const supabase = createClient();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -166,7 +167,7 @@ async function uploadVideoResumable(
       retryDelays: [0, 1000, 3000, 5000],
       headers: {
         authorization: `Bearer ${session.access_token}`,
-        "x-upsert": "true",
+        ...(upsert ? { "x-upsert": "true" } : {}),
       },
       uploadDataDuringCreation: true,
       removeFingerprintOnSuccess: true,
@@ -293,6 +294,7 @@ export function AdminCourseEditor({
               lesson.videoFile,
               "course-videos",
               videoPath,
+              Boolean(lesson.videoPath),
             );
           }
           const attachments = (lesson.existingAttachments ?? []).map(
