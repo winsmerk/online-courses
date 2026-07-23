@@ -1,10 +1,10 @@
 :root {
-  --ink: #085838;
-  --ink-soft: #0e6a47;
+  --ink: #055330;
+  --ink-soft: #0b6542;
   --paper: #f3f7f4;
   --white: #ffffff;
   --muted: #b7cdbf;
-  --line: rgba(8, 88, 56, 0.14);
+  --line: rgba(5, 83, 48, 0.14);
   --blue: #d7eadf;
   --blue-strong: #2f815d;
   --lime: #dcebc2;
@@ -86,7 +86,7 @@ img {
   left: 0;
   height: 82px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(8, 88, 56, 0.92);
+  background: rgba(5, 83, 48, 0.94);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
@@ -183,7 +183,7 @@ img {
   border-radius: 12px;
   color: var(--ink);
   background: white;
-  box-shadow: 0 16px 45px rgba(8, 88, 56, 0.2);
+  box-shadow: 0 16px 45px rgba(5, 83, 48, 0.2);
 }
 
 .language-dropdown button {
@@ -458,7 +458,7 @@ img {
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(8, 88, 56, 0.58);
+  background: rgba(5, 83, 48, 0.6);
 }
 
 .password-modal {
@@ -524,6 +524,7 @@ img {
 
 .hero-grid {
   min-height: 605px;
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(440px, 0.95fr);
   gap: 64px;
@@ -566,8 +567,14 @@ img {
 
 .hero-collage {
   position: relative;
-  height: 530px;
-  transform: rotate(4deg);
+  height: 520px;
+  margin: 34px 0;
+  overflow: hidden;
+  border: 1px solid rgba(5, 83, 48, 0.08);
+  border-radius: 32px;
+  background:
+    linear-gradient(145deg, #ffffff 0%, #ffffff 68%, #edf5f0 68%, #edf5f0 100%);
+  box-shadow: 0 30px 80px rgba(0, 36, 20, 0.22);
 }
 
 .portrait-card {
@@ -607,35 +614,40 @@ img {
 }
 
 .portrait-card.card-a {
-  top: 10px;
-  left: 20px;
+  top: 26px;
+  left: 24px;
   background: #0e6a47;
+  transform: rotate(-2.5deg);
 }
 
 .portrait-card.card-b {
-  top: 185px;
-  right: -56px;
+  top: 174px;
+  right: 20px;
   background: #146f4d;
+  transform: rotate(2deg);
 }
 
 .portrait-card.card-c {
-  bottom: 0;
-  left: 4px;
+  bottom: 24px;
+  left: 42px;
   background: #1d7654;
+  transform: rotate(-1deg);
 }
 
 .trust-strip {
-  min-height: 95px;
-  margin-top: -1px;
+  min-height: 112px;
+  margin-top: 0;
+  padding: 0 30px;
   display: grid;
   grid-template-columns: 1.3fr repeat(3, 1fr);
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  border-radius: 26px 26px 0 0;
+  background: white;
+  color: var(--ink);
 }
 
 .trust-strip p {
-  color: #a9c4b4;
+  color: #5c7064;
   font-size: 13px;
 }
 
@@ -651,7 +663,7 @@ img {
 }
 
 .trust-item span {
-  color: #a6c0b1;
+  color: #60766a;
   font-size: 12px;
 }
 
@@ -700,7 +712,7 @@ img {
 
 .course-card:hover {
   transform: translateY(-7px);
-  box-shadow: 0 24px 60px rgba(8, 88, 56, 0.14);
+  box-shadow: 0 24px 60px rgba(5, 83, 48, 0.14);
 }
 
 .course-cover {
@@ -727,7 +739,7 @@ img {
   left: 15px;
   padding: 8px 11px;
   border-radius: 999px;
-  background: rgba(8, 88, 56, 0.88);
+  background: rgba(5, 83, 48, 0.9);
   color: white;
   font-size: 11px;
   backdrop-filter: blur(10px);
@@ -1063,7 +1075,7 @@ img {
   padding: 28px;
   border-radius: 20px;
   background: white;
-  box-shadow: 0 20px 70px rgba(8, 88, 56, 0.12);
+  box-shadow: 0 20px 70px rgba(5, 83, 48, 0.12);
 }
 
 .detail-sidebar h3 {
