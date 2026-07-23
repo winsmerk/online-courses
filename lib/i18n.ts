@@ -308,6 +308,7 @@ const english: Record<string, string> = {
   English: "English",
   切换到英文: "Switch to English",
   切换到中文: "Switch to Chinese",
+  选择语言: "Select language",
 };
 
 export function normalizeLocale(value?: string | null): Locale {
