@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { getCourseBySlug } from "@/lib/data";
+import { getServerI18n } from "@/lib/i18n-server";
 
 export default async function CourseDetailPage({
   params,
@@ -14,6 +15,7 @@ export default async function CourseDetailPage({
   const { slug } = await params;
   const course = await getCourseBySlug(slug);
   if (!course) notFound();
+  const { t } = await getServerI18n();
 
   const lessonCount = course.chapters.reduce(
     (sum, chapter) => sum + chapter.lessons.length,
@@ -35,18 +37,18 @@ export default async function CourseDetailPage({
             <p>{course.subtitle}</p>
             <div className="detail-facts">
               <span>
-                <Layers3 size={15} /> {course.chapters.length} 章
+                <Layers3 size={15} /> {course.chapters.length} {t("章")}
               </span>
               <span>
-                <PlayCircle size={15} /> {lessonCount} 节课
+                <PlayCircle size={15} /> {lessonCount} {t("节课")}
               </span>
               <span>
                 <Clock size={15} /> {Math.round(course.durationMinutes / 60)}{" "}
-                小时
+                {t("小时")}
               </span>
             </div>
             <Link className="button" href="/enroll">
-              添加微信报名
+              {t("添加微信报名")}
             </Link>
           </div>
           <div className="detail-cover">
@@ -64,7 +66,7 @@ export default async function CourseDetailPage({
       <main className="section">
         <div className="shell detail-content">
           <div className="prose">
-            <h2>关于这门课程</h2>
+            <h2>{t("关于这门课程")}</h2>
             <p>{course.description}</p>
             {course.introImages.map((image, index) => (
               <div
@@ -87,17 +89,19 @@ export default async function CourseDetailPage({
               </div>
             ))}
             <div className="curriculum">
-              <h2>课程目录</h2>
+              <h2>{t("课程目录")}</h2>
               {course.chapters.map((chapter) => (
                 <section className="chapter" key={chapter.id}>
                   <h3>{chapter.title}</h3>
                   {chapter.lessons.map((lesson) => (
                     <div className="lesson-row" key={lesson.id}>
                       <span>
-                        {lesson.isPreview ? "试看 · " : ""}
+                        {lesson.isPreview ? `${t("试看")} · ` : ""}
                         {lesson.title}
                       </span>
-                      <span>{lesson.durationMinutes} 分钟</span>
+                      <span>
+                        {lesson.durationMinutes} {t("分钟")}
+                      </span>
                     </div>
                   ))}
                 </section>
@@ -105,23 +109,23 @@ export default async function CourseDetailPage({
             </div>
           </div>
           <aside className="detail-sidebar">
-            <h3>你将获得</h3>
+            <h3>{t("你将获得")}</h3>
             <ul>
               <li>
-                <Check size={16} /> 结构清晰的视频课程
+                <Check size={16} /> {t("结构清晰的视频课程")}
               </li>
               <li>
-                <Check size={16} /> 配套文档与练习附件
+                <Check size={16} /> {t("配套文档与练习附件")}
               </li>
               <li>
-                <Check size={16} /> 永久记录学习进度
+                <Check size={16} /> {t("永久记录学习进度")}
               </li>
               <li>
-                <Check size={16} /> 随时回看，按自己的节奏学习
+                <Check size={16} /> {t("随时回看，按自己的节奏学习")}
               </li>
             </ul>
             <Link className="button" href="/enroll">
-              咨询并报名
+              {t("咨询并报名")}
             </Link>
           </aside>
         </div>

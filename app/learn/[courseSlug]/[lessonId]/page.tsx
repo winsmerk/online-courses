@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CheckCircle2, ChevronLeft, Circle, Play } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { canAccessCourse, getCourseBySlug } from "@/lib/data";
+import { getServerI18n } from "@/lib/i18n-server";
 import { requireViewer } from "@/lib/viewer";
 import { createAdminClient } from "@/lib/supabase/server";
 import { completeLesson } from "@/app/actions/progress";
@@ -51,13 +52,14 @@ export default async function LearnPage({
   if (!lesson) notFound();
   const videoUrl = await getSignedVideoUrl(lesson.videoPath);
   const attachments = await getSignedAttachmentUrls(lesson.attachments ?? []);
+  const { t } = await getServerI18n();
 
   return (
     <main className="learn-layout">
       <section className="learn-main">
         <div className="learn-topbar">
           <Link href="/dashboard" className="course-link">
-            <ChevronLeft size={16} /> 返回我的学习
+            <ChevronLeft size={16} /> {t("返回我的学习")}
           </Link>
           <span style={{ color: "#7f87a3", fontSize: 12 }}>
             {course.title}
@@ -71,8 +73,8 @@ export default async function LearnPage({
               <span className="play-circle">
                 <Play size={28} fill="currentColor" />
               </span>
-              <strong>课程视频</strong>
-              <p>管理员上传视频后将在这里播放</p>
+              <strong>{t("课程视频")}</strong>
+              <p>{t("管理员上传视频后将在这里播放")}</p>
             </div>
           )}
         </div>
@@ -84,7 +86,7 @@ export default async function LearnPage({
           <p>{lesson.description}</p>
           {attachments.length > 0 && (
             <div style={{ margin: "26px 0" }}>
-              <strong>课程附件</strong>
+              <strong>{t("课程附件")}</strong>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
                 {attachments.map(
                   (attachment) =>
@@ -94,7 +96,7 @@ export default async function LearnPage({
                         href={attachment.url}
                         key={attachment.id}
                       >
-                        下载 {attachment.filename}
+                        {t("下载")} {attachment.filename}
                       </a>
                     ),
                 )}
@@ -109,17 +111,17 @@ export default async function LearnPage({
               value={`/learn/${course.slug}/${lesson.id}`}
             />
             <button className="button" type="submit">
-              <CheckCircle2 size={16} /> 标记为已完成
+              <CheckCircle2 size={16} /> {t("标记为已完成")}
             </button>
           </form>
         </article>
       </section>
       <aside className="learn-sidebar">
-        <h2>课程目录</h2>
+        <h2>{t("课程目录")}</h2>
         {course.chapters.map((chapter, chapterIndex) => (
           <section className="learn-chapter" key={chapter.id}>
             <strong>
-              第 {chapterIndex + 1} 章 · {chapter.title}
+              {t("第")} {chapterIndex + 1} {t("章")} · {chapter.title}
             </strong>
             {chapter.lessons.map((item) => (
               <Link
@@ -139,7 +141,7 @@ export default async function LearnPage({
                   <small
                     style={{ display: "block", color: "#737c9b", marginTop: 3 }}
                   >
-                    {item.durationMinutes} 分钟
+                    {item.durationMinutes} {t("分钟")}
                   </small>
                 </span>
               </Link>

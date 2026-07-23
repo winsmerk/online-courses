@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Search,
 } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 type Student = {
   id: string;
@@ -38,6 +39,7 @@ export function AdminStudentManager() {
   const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);
   const [resetStudent, setResetStudent] = useState<Student | null>(null);
   const [resetPassword, setResetPassword] = useState("");
+  const { t } = useLanguage();
 
   const loadStudents = useCallback(async () => {
     setLoading(true);
@@ -45,17 +47,19 @@ export function AdminStudentManager() {
     try {
       const response = await fetch("/api/admin/students", { cache: "no-store" });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "学员列表加载失败");
+      if (!response.ok) {
+        throw new Error(t(result.error ?? "学员列表加载失败"));
+      }
       setStudents(result.students);
       setCourses(result.courses);
     } catch (loadError) {
       setError(
-        loadError instanceof Error ? loadError.message : "学员列表加载失败",
+        loadError instanceof Error ? loadError.message : t("学员列表加载失败"),
       );
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void loadStudents();
@@ -88,13 +92,15 @@ export function AdminStudentManager() {
         }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "学员账号创建失败");
+      if (!response.ok) {
+        throw new Error(t(result.error ?? "学员账号创建失败"));
+      }
       event.currentTarget.reset();
-      setMessage("学员账号已创建，可立即分配课程。");
+      setMessage(t("学员账号已创建，可立即分配课程。"));
       await loadStudents();
     } catch (createError) {
       setError(
-        createError instanceof Error ? createError.message : "学员账号创建失败",
+        createError instanceof Error ? createError.message : t("学员账号创建失败"),
       );
     } finally {
       setSubmitting(false);
@@ -132,15 +138,19 @@ export function AdminStudentManager() {
         }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "课程分配失败");
-      setMessage(`已更新 ${assigningStudent.displayName} 的课程权限。`);
+      if (!response.ok) throw new Error(t(result.error ?? "课程分配失败"));
+      setMessage(
+        t("已更新 {name} 的课程权限。", {
+          name: assigningStudent.displayName,
+        }),
+      );
       setAssigningStudent(null);
       await loadStudents();
     } catch (assignmentError) {
       setError(
         assignmentError instanceof Error
           ? assignmentError.message
-          : "课程分配失败",
+          : t("课程分配失败"),
       );
     } finally {
       setSubmitting(false);
@@ -163,13 +173,13 @@ export function AdminStudentManager() {
         }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "密码重设失败");
-      setMessage(`已重设 ${resetStudent.email} 的密码。`);
+      if (!response.ok) throw new Error(t(result.error ?? "密码重设失败"));
+      setMessage(t("已重设 {email} 的密码。", { email: resetStudent.email }));
       setResetStudent(null);
       setResetPassword("");
     } catch (passwordError) {
       setError(
-        passwordError instanceof Error ? passwordError.message : "密码重设失败",
+        passwordError instanceof Error ? passwordError.message : t("密码重设失败"),
       );
     } finally {
       setSubmitting(false);
@@ -186,19 +196,19 @@ export function AdminStudentManager() {
       <section className="admin-panel">
         <div>
           <span className="eyebrow">Student account</span>
-          <h2>创建学员账号</h2>
-          <p>账号创建后邮箱会自动确认，学员可使用邮箱和初始密码登录。</p>
+          <h2>{t("创建学员账号")}</h2>
+          <p>{t("账号创建后邮箱会自动确认，学员可使用邮箱和初始密码登录。")}</p>
         </div>
         <form
           className="user-create-form student-create-form"
           onSubmit={createStudent}
         >
           <label>
-            姓名
-            <input name="displayName" required placeholder="例如：陈默" />
+            {t("姓名")}
+            <input name="displayName" required placeholder={t("例如：陈默")} />
           </label>
           <label>
-            邮箱
+            {t("邮箱")}
             <input
               name="email"
               type="email"
@@ -207,13 +217,13 @@ export function AdminStudentManager() {
             />
           </label>
           <label>
-            初始密码
+            {t("初始密码")}
             <input
               name="password"
               type="password"
               minLength={8}
               required
-              placeholder="至少 8 位"
+              placeholder={t("至少 8 位")}
             />
           </label>
           <button className="button dark" disabled={submitting} type="submit">
@@ -222,7 +232,7 @@ export function AdminStudentManager() {
             ) : (
               <Plus size={16} />
             )}
-            创建学员
+            {t("创建学员")}
           </button>
         </form>
       </section>
@@ -237,7 +247,7 @@ export function AdminStudentManager() {
         <div className="panel-heading student-list-heading">
           <div>
             <span className="eyebrow">Students</span>
-            <h2>普通学员</h2>
+            <h2>{t("普通学员")}</h2>
           </div>
           <div className="student-list-tools">
             <label className="student-search">
@@ -246,15 +256,15 @@ export function AdminStudentManager() {
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="搜索姓名或邮箱"
-                aria-label="搜索学员"
+                placeholder={t("搜索姓名或邮箱")}
+                aria-label={t("搜索学员")}
               />
             </label>
             <button
               className="icon-button"
               onClick={() => void loadStudents()}
-              title="刷新"
-              aria-label="刷新学员列表"
+              title={t("刷新")}
+              aria-label={t("刷新学员列表")}
             >
               <RefreshCw size={17} />
             </button>
@@ -263,10 +273,10 @@ export function AdminStudentManager() {
 
         {loading ? (
           <p className="empty-state">
-            <LoaderCircle className="spin" size={18} /> 正在加载…
+            <LoaderCircle className="spin" size={18} /> {t("正在加载")}…
           </p>
         ) : filteredStudents.length === 0 ? (
-          <p className="empty-state">暂无符合条件的学员。</p>
+          <p className="empty-state">{t("暂无符合条件的学员。")}</p>
         ) : (
           <div className="student-card-list">
             {filteredStudents.map((student) => (
@@ -282,17 +292,19 @@ export function AdminStudentManager() {
                 </div>
                 <div className="student-course-summary">
                   <span>
-                    已分配 {student.courseIds.length} 门课程
+                    {t("已分配 {count} 门课程", {
+                      count: student.courseIds.length,
+                    })}
                   </span>
                   <div className="student-course-tags">
                     {student.courseIds.length ? (
                       student.courseIds.slice(0, 3).map((courseId) => (
                         <span key={courseId}>
-                          {courseTitleMap.get(courseId) ?? "课程"}
+                          {courseTitleMap.get(courseId) ?? t("课程")}
                         </span>
                       ))
                     ) : (
-                      <em>尚未分配课程</em>
+                      <em>{t("尚未分配课程")}</em>
                     )}
                     {student.courseIds.length > 3 && (
                       <span>+{student.courseIds.length - 3}</span>
@@ -305,7 +317,7 @@ export function AdminStudentManager() {
                     type="button"
                     onClick={() => openAssignment(student)}
                   >
-                    <BookPlus size={15} /> 分配课程
+                    <BookPlus size={15} /> {t("分配课程")}
                   </button>
                   <button
                     className="text-button"
@@ -316,7 +328,7 @@ export function AdminStudentManager() {
                       setError("");
                     }}
                   >
-                    <KeyRound size={15} /> 重设密码
+                    <KeyRound size={15} /> {t("重设密码")}
                   </button>
                 </div>
               </article>
@@ -338,10 +350,10 @@ export function AdminStudentManager() {
             aria-modal="true"
             aria-labelledby="course-assignment-title"
           >
-            <h2 id="course-assignment-title">分配课程</h2>
+            <h2 id="course-assignment-title">{t("分配课程")}</h2>
             <p>
-              {assigningStudent.displayName} · 已选择 {selectedCourseIds.length}{" "}
-              门
+              {assigningStudent.displayName} ·{" "}
+              {t("已选择 {count} 门", { count: selectedCourseIds.length })}
             </p>
             <div className="course-assignment-list">
               {courses.length ? (
@@ -367,7 +379,7 @@ export function AdminStudentManager() {
                   );
                 })
               ) : (
-                <p className="empty-state">暂无已发布课程，请先发布课程。</p>
+                <p className="empty-state">{t("暂无已发布课程，请先发布课程。")}</p>
               )}
             </div>
             <div className="modal-actions">
@@ -376,11 +388,11 @@ export function AdminStudentManager() {
                 type="button"
                 onClick={() => setAssigningStudent(null)}
               >
-                取消
+                {t("取消")}
               </button>
               <button className="button dark" type="submit" disabled={submitting}>
                 {submitting && <LoaderCircle className="spin" size={16} />}
-                保存分配
+                {t("保存分配")}
               </button>
             </div>
           </form>
@@ -400,10 +412,10 @@ export function AdminStudentManager() {
             aria-modal="true"
             aria-labelledby="student-password-title"
           >
-            <h2 id="student-password-title">重设学员密码</h2>
+            <h2 id="student-password-title">{t("重设学员密码")}</h2>
             <p>{resetStudent.email}</p>
             <label>
-              新密码
+              {t("新密码")}
               <input
                 type="password"
                 minLength={8}
@@ -411,7 +423,7 @@ export function AdminStudentManager() {
                 autoFocus
                 value={resetPassword}
                 onChange={(event) => setResetPassword(event.target.value)}
-                placeholder="至少 8 位"
+                placeholder={t("至少 8 位")}
               />
             </label>
             <div className="modal-actions">
@@ -420,10 +432,10 @@ export function AdminStudentManager() {
                 type="button"
                 onClick={() => setResetStudent(null)}
               >
-                取消
+                {t("取消")}
               </button>
               <button className="button dark" type="submit" disabled={submitting}>
-                确认重设
+                {t("确认重设")}
               </button>
             </div>
           </form>

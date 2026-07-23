@@ -2,8 +2,10 @@ import Link from "next/link";
 import { CheckCircle2, MessageCircle, UserCheck } from "lucide-react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { getServerI18n } from "@/lib/i18n-server";
 
-export default function EnrollPage() {
+export default async function EnrollPage() {
+  const { t } = await getServerI18n();
   return (
     <>
       <div style={{ background: "var(--ink)", color: "white" }}>
@@ -14,10 +16,8 @@ export default function EnrollPage() {
           <p className="eyebrow" style={{ color: "var(--blue)" }}>
             Enrollment
           </p>
-          <h1>添加官方微信，确认课程并开通账号。</h1>
-          <p>
-            目前采用人工报名方式。添加微信时请备注“课程报名”，我们会协助你选择课程并完成账号开通。
-          </p>
+          <h1>{t("添加官方微信，确认课程并开通账号。")}</h1>
+          <p>{t("目前采用人工报名方式。添加微信时请备注“课程报名”，我们会协助你选择课程并完成账号开通。")}</p>
         </div>
       </section>
       <main className="section">
@@ -36,18 +36,18 @@ export default function EnrollPage() {
               {[
                 [
                   <MessageCircle key="a" size={21} />,
-                  "添加官方微信",
-                  "扫描右侧二维码，添加时备注“课程报名”。",
+                  t("添加官方微信"),
+                  t("扫描右侧二维码，添加时备注“课程报名”。"),
                 ],
                 [
                   <UserCheck key="b" size={21} />,
-                  "确认课程与身份",
-                  "告诉我们你想学习的课程，客服会确认报名信息。",
+                  t("确认课程与身份"),
+                  t("告诉我们你想学习的课程，客服会确认报名信息。"),
                 ],
                 [
                   <CheckCircle2 key="c" size={21} />,
-                  "收到账号开始学习",
-                  "账号开通后即可登录，课程会自动出现在学员中心。",
+                  t("收到账号开始学习"),
+                  t("账号开通后即可登录，课程会自动出现在学员中心。"),
                 ],
               ].map(([icon, title, text], index) => (
                 <article
@@ -72,20 +72,20 @@ export default function EnrollPage() {
               boxShadow: "0 20px 70px rgba(25,31,75,.1)",
             }}
           >
-            <div className="qr-placeholder">替换为官方微信二维码</div>
+            <div className="qr-placeholder">{t("替换为官方微信二维码")}</div>
             <h2
               style={{
                 margin: "24px 0 10px",
                 fontFamily: "var(--font-serif)",
               }}
             >
-              官方微信：ZHIXU-ACADEMY
+              {t("官方微信")}：ZHIXU-ACADEMY
             </h2>
             <p style={{ color: "#6b7188", lineHeight: 1.8, fontSize: 13 }}>
-              服务时间：周一至周五 10:00–18:00
+              {t("服务时间：周一至周五 10:00–18:00")}
             </p>
             <Link className="button dark" href="/login" style={{ width: "100%" }}>
-              已有账号，直接登录
+              {t("已有账号，直接登录")}
             </Link>
           </aside>
         </div>

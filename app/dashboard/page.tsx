@@ -4,11 +4,13 @@ import { ArrowRight } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { DemoBanner } from "@/components/demo-banner";
 import { getEnrollments } from "@/lib/data";
+import { getServerI18n } from "@/lib/i18n-server";
 import { requireViewer } from "@/lib/viewer";
 
 export default async function DashboardPage() {
   const viewer = await requireViewer();
   const courses = await getEnrollments(viewer.id, viewer.role);
+  const { t } = await getServerI18n();
 
   const stats = {
     all: courses.length,
@@ -24,27 +26,27 @@ export default async function DashboardPage() {
       <DashboardShell viewer={viewer}>
         <div className="dashboard-top">
           <div>
-            <h1>你好，{viewer.name}</h1>
-            <p>继续今天的学习，把一点进步积累成长期能力。</p>
+            <h1>{t("你好，{name}", { name: viewer.name })}</h1>
+            <p>{t("继续今天的学习，把一点进步积累成长期能力。")}</p>
           </div>
           <div className="avatar">{viewer.name.slice(0, 1)}</div>
         </div>
-        <section className="stats" aria-label="学习数据">
+        <section className="stats" aria-label={t("学习数据")}>
           <div className="stat">
-            <span>{viewer.role === "admin" ? "全部课程" : "我的课程"}</span>
+            <span>{viewer.role === "admin" ? t("全部课程") : t("我的课程")}</span>
             <strong>{stats.all}</strong>
           </div>
           <div className="stat">
-            <span>学习中</span>
+            <span>{t("学习中")}</span>
             <strong>{stats.learning}</strong>
           </div>
           <div className="stat">
-            <span>已完成</span>
+            <span>{t("已完成")}</span>
             <strong>{stats.completed}</strong>
           </div>
         </section>
         <h2 style={{ fontFamily: "var(--font-serif)", marginBottom: 20 }}>
-          {viewer.role === "admin" ? "全部课程" : "我的课程"}
+          {viewer.role === "admin" ? t("全部课程") : t("我的课程")}
         </h2>
         <section className="learning-list">
           {courses.map((course) => {
@@ -66,9 +68,11 @@ export default async function DashboardPage() {
                 <div>
                   <span
                     className={`learning-status ${statusClass}`}
-                    aria-label={`学习状态：${course.learningStatus}`}
+                    aria-label={t("学习状态：{status}", {
+                      status: t(course.learningStatus),
+                    })}
                   >
-                    {course.learningStatus}
+                    {t(course.learningStatus)}
                   </span>
                   <h3>{course.title}</h3>
                   <div className="progress-track">
@@ -78,7 +82,7 @@ export default async function DashboardPage() {
                     />
                   </div>
                   <span className="progress-label">
-                    已完成 {course.progress}%
+                    {t("已完成 {progress}%", { progress: course.progress })}
                   </span>
                 </div>
                 {firstLesson && (
@@ -86,7 +90,7 @@ export default async function DashboardPage() {
                     className="button dark"
                     href={`/learn/${course.slug}/${firstLesson.id}`}
                   >
-                    {course.progress ? "继续学习" : "开始学习"}
+                    {course.progress ? t("继续学习") : t("开始学习")}
                     <ArrowRight size={16} />
                   </Link>
                 )}

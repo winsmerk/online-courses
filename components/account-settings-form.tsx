@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { LoaderCircle, Save } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 import { createClient } from "@/lib/supabase/browser";
 
 export function AccountSettingsForm({
@@ -16,6 +17,7 @@ export function AccountSettingsForm({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const { t } = useLanguage();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -28,14 +30,14 @@ export function AccountSettingsForm({
     const password = String(form.get("password") ?? "");
     const confirmPassword = String(form.get("confirmPassword") ?? "");
     if (password && password !== confirmPassword) {
-      setError("两次输入的新密码不一致。");
+      setError(t("两次输入的新密码不一致。"));
       setSaving(false);
       return;
     }
 
     const supabase = createClient();
     if (!supabase) {
-      setError("账号服务尚未配置。");
+      setError(t("账号服务尚未配置。"));
       setSaving(false);
       return;
     }
@@ -65,7 +67,7 @@ export function AccountSettingsForm({
     }
 
     event.currentTarget.reset();
-    setMessage("账号信息已保存。");
+    setMessage(t("账号信息已保存。"));
     setSaving(false);
   }
 
@@ -73,10 +75,10 @@ export function AccountSettingsForm({
     <form className="settings-form" onSubmit={handleSubmit}>
       <section className="admin-panel">
         <span className="eyebrow">Profile</span>
-        <h2>基本信息</h2>
+        <h2>{t("基本信息")}</h2>
         <div className="settings-grid">
           <label>
-            显示名称
+            {t("显示名称")}
             <input
               name="displayName"
               defaultValue={initialName}
@@ -85,34 +87,34 @@ export function AccountSettingsForm({
             />
           </label>
           <label>
-            登录邮箱
-            <input value={email} disabled aria-label="登录邮箱" />
+            {t("登录邮箱")}
+            <input value={email} disabled aria-label={t("登录邮箱")} />
           </label>
         </div>
       </section>
       <section className="admin-panel">
         <span className="eyebrow">Password</span>
-        <h2>修改密码</h2>
-        <p>不需要修改密码时保持为空即可。</p>
+        <h2>{t("修改密码")}</h2>
+        <p>{t("不需要修改密码时保持为空即可。")}</p>
         <div className="settings-grid">
           <label>
-            新密码
+            {t("新密码")}
             <input
               name="password"
               type="password"
               minLength={8}
               autoComplete="new-password"
-              placeholder="至少 8 位"
+              placeholder={t("至少 8 位")}
             />
           </label>
           <label>
-            确认新密码
+            {t("确认新密码")}
             <input
               name="confirmPassword"
               type="password"
               minLength={8}
               autoComplete="new-password"
-              placeholder="再次输入新密码"
+              placeholder={t("再次输入新密码")}
             />
           </label>
         </div>
@@ -124,7 +126,7 @@ export function AccountSettingsForm({
       )}
       <button className="button dark" disabled={saving} type="submit">
         {saving ? <LoaderCircle className="spin" size={16} /> : <Save size={16} />}
-        保存账号设置
+        {t("保存账号设置")}
       </button>
     </form>
   );

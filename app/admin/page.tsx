@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Pencil, Plus } from "lucide-react";
 import { getAdminCourseSummaries } from "@/lib/data";
+import { getServerI18n } from "@/lib/i18n-server";
 
 export default async function AdminPage({
   searchParams,
@@ -9,16 +10,17 @@ export default async function AdminPage({
 }) {
   const courses = await getAdminCourseSummaries();
   const { created, updated } = await searchParams;
+  const { t } = await getServerI18n();
 
   return (
     <>
         <div className="dashboard-top">
           <div>
-            <h1>课程管理</h1>
-            <p>创建课程、组织章节并上传视频。</p>
+            <h1>{t("课程管理")}</h1>
+            <p>{t("创建课程、组织章节并上传视频。")}</p>
           </div>
           <Link className="button dark" href="/admin/courses/new">
-            <Plus size={16} /> 新建课程
+            <Plus size={16} /> {t("新建课程")}
           </Link>
         </div>
         {(created || updated) && (
@@ -30,22 +32,22 @@ export default async function AdminPage({
               background: "#e4f7d8",
             }}
           >
-            {updated ? "课程已成功更新。" : "课程已成功创建。"}
+            {updated ? t("课程已成功更新。") : t("课程已成功创建。")}
           </p>
         )}
         <section className="stats">
           <div className="stat">
-            <span>课程数量</span>
+            <span>{t("课程数量")}</span>
             <strong>{courses.length}</strong>
           </div>
           <div className="stat">
-            <span>已发布</span>
+            <span>{t("已发布")}</span>
             <strong>
               {courses.filter((course) => course.status === "published").length}
             </strong>
           </div>
           <div className="stat">
-            <span>总课时</span>
+            <span>{t("总课时")}</span>
             <strong>
               {courses.reduce((total, course) => total + course.lessonCount, 0)}
             </strong>
@@ -60,11 +62,12 @@ export default async function AdminPage({
             >
               <div>
                 <span className={`course-status ${course.status}`}>
-                  {course.status === "published" ? "已发布" : "草稿"}
+                  {course.status === "published" ? t("已发布") : t("草稿")}
                 </span>
                 <h3>{course.title}</h3>
                 <span className="progress-label">
-                  {course.chapterCount} 个章节 · {course.lessonCount} 节课 ·{" "}
+                  {course.chapterCount} {t("个章节")} · {course.lessonCount}{" "}
+                  {t("节课")} ·{" "}
                   {course.instructor}
                 </span>
               </div>
@@ -74,14 +77,14 @@ export default async function AdminPage({
                   href={`/admin/courses/${course.id}/edit`}
                   prefetch
                 >
-                  <Pencil size={15} /> 编辑
+                  <Pencil size={15} /> {t("编辑")}
                 </Link>
                 <Link
                   className="button secondary"
                   href={`/courses/${encodeURIComponent(course.slug)}`}
                   prefetch
                 >
-                  查看详情
+                  {t("查看详情")}
                 </Link>
               </div>
             </article>

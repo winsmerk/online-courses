@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { KeyRound, LoaderCircle, Plus, RefreshCw } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 type ManagedUser = {
   id: string;
@@ -20,20 +21,21 @@ export function AdminUserManager() {
   const [error, setError] = useState("");
   const [resetUser, setResetUser] = useState<ManagedUser | null>(null);
   const [resetPassword, setResetPassword] = useState("");
+  const { t, locale } = useLanguage();
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
     setError("");
     const response = await fetch("/api/admin/users", { cache: "no-store" });
     const result = await response.json();
-    if (!response.ok) setError(result.error ?? "账号列表加载失败");
+    if (!response.ok) setError(t(result.error ?? "账号列表加载失败"));
     else {
       setUsers(
         (result.users as ManagedUser[]).filter((user) => user.role === "admin"),
       );
     }
     setLoading(false);
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void loadUsers();
@@ -57,10 +59,10 @@ export function AdminUserManager() {
     });
     const result = await response.json();
     if (!response.ok) {
-      setError(result.error ?? "账号创建失败");
+      setError(t(result.error ?? "账号创建失败"));
     } else {
       event.currentTarget.reset();
-      setMessage("账号已创建，用户可立即使用邮箱和密码登录。");
+      setMessage(t("账号已创建，用户可立即使用邮箱和密码登录。"));
       await loadUsers();
     }
     setSubmitting(false);
@@ -82,9 +84,9 @@ export function AdminUserManager() {
     });
     const result = await response.json();
     if (!response.ok) {
-      setError(result.error ?? "密码重设失败");
+      setError(t(result.error ?? "密码重设失败"));
     } else {
-      setMessage(`已重设 ${resetUser.email} 的密码。`);
+      setMessage(t("已重设 {email} 的密码。", { email: resetUser.email }));
       setResetUser(null);
       setResetPassword("");
     }
@@ -96,34 +98,34 @@ export function AdminUserManager() {
       <section className="admin-panel">
         <div>
           <span className="eyebrow">Create account</span>
-          <h2>创建管理员账号</h2>
-          <p>管理员可以管理课程与学员。邮箱会自动确认，不发送注册邮件。</p>
+          <h2>{t("创建管理员账号")}</h2>
+          <p>{t("管理员可以管理课程与学员。邮箱会自动确认，不发送注册邮件。")}</p>
         </div>
         <form
           className="user-create-form admin-account-create-form"
           onSubmit={createUser}
         >
           <label>
-            姓名
-            <input name="displayName" required placeholder="例如：陈默" />
+            {t("姓名")}
+            <input name="displayName" required placeholder={t("例如：陈默")} />
           </label>
           <label>
-            邮箱
+            {t("邮箱")}
             <input name="email" type="email" required placeholder="name@example.com" />
           </label>
           <label>
-            初始密码
+            {t("初始密码")}
             <input
               name="password"
               type="password"
               minLength={8}
               required
-              placeholder="至少 8 位"
+              placeholder={t("至少 8 位")}
             />
           </label>
           <button className="button dark" disabled={submitting} type="submit">
             {submitting ? <LoaderCircle className="spin" size={16} /> : <Plus size={16} />}
-            创建账号
+            {t("创建账号")}
           </button>
         </form>
       </section>
@@ -138,23 +140,23 @@ export function AdminUserManager() {
         <div className="panel-heading">
           <div>
             <span className="eyebrow">Users</span>
-            <h2>管理员列表</h2>
+            <h2>{t("管理员列表")}</h2>
           </div>
-          <button className="icon-button" onClick={() => void loadUsers()} title="刷新">
+          <button className="icon-button" onClick={() => void loadUsers()} title={t("刷新")}>
             <RefreshCw size={17} />
           </button>
         </div>
         {loading ? (
-          <p className="empty-state"><LoaderCircle className="spin" size={18} /> 正在加载…</p>
+          <p className="empty-state"><LoaderCircle className="spin" size={18} /> {t("正在加载")}…</p>
         ) : (
           <div className="user-table-wrap">
             <table className="user-table">
               <thead>
                 <tr>
-                  <th>用户</th>
-                  <th>角色</th>
-                  <th>创建时间</th>
-                  <th>操作</th>
+                  <th>{t("用户")}</th>
+                  <th>{t("角色")}</th>
+                  <th>{t("创建时间")}</th>
+                  <th>{t("操作")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -166,16 +168,16 @@ export function AdminUserManager() {
                     </td>
                     <td>
                       <span className="role-badge">
-                        {user.role === "admin" ? "管理员" : "普通学员"}
+                        {user.role === "admin" ? t("管理员") : t("普通学员")}
                       </span>
                     </td>
-                    <td>{new Date(user.createdAt).toLocaleDateString("zh-CN")}</td>
+                    <td>{new Date(user.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}</td>
                     <td>
                       <button
                         className="text-button"
                         onClick={() => setResetUser(user)}
                       >
-                        <KeyRound size={15} /> 重设密码
+                        <KeyRound size={15} /> {t("重设密码")}
                       </button>
                     </td>
                   </tr>
@@ -193,10 +195,10 @@ export function AdminUserManager() {
             onSubmit={updatePassword}
             onMouseDown={(event) => event.stopPropagation()}
           >
-            <h2>重设密码</h2>
+            <h2>{t("重设密码")}</h2>
             <p>{resetUser.email}</p>
             <label>
-              新密码
+              {t("新密码")}
               <input
                 type="password"
                 minLength={8}
@@ -204,15 +206,15 @@ export function AdminUserManager() {
                 autoFocus
                 value={resetPassword}
                 onChange={(event) => setResetPassword(event.target.value)}
-                placeholder="至少 8 位"
+                placeholder={t("至少 8 位")}
               />
             </label>
             <div className="modal-actions">
               <button className="button secondary" type="button" onClick={() => setResetUser(null)}>
-                取消
+                {t("取消")}
               </button>
               <button className="button dark" type="submit" disabled={submitting}>
-                确认重设
+                {t("确认重设")}
               </button>
             </div>
           </form>

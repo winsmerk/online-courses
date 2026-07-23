@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Plus, Save, Trash2, UploadCloud } from "lucide-react";
 import * as tus from "tus-js-client";
+import { useLanguage } from "@/components/language-provider";
 import { createClient } from "@/lib/supabase/browser";
 import type { Course } from "@/lib/types";
 
@@ -99,6 +100,7 @@ function VideoPreview({
   file?: File;
   storagePath?: string | null;
 }) {
+  const { t } = useLanguage();
   const localUrl = useObjectUrl(file);
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -129,7 +131,7 @@ function VideoPreview({
 
   const url = localUrl || uploadedUrl;
   if (loading) {
-    return <div className="video-preview-loading">正在加载已上传的视频…</div>;
+    return <div className="video-preview-loading">{t("正在加载已上传的视频…")}</div>;
   }
   if (!url) return null;
 
@@ -137,9 +139,9 @@ function VideoPreview({
     <figure className="video-preview-card">
       <video src={url} controls preload="metadata" />
       <figcaption>
-        {file?.name ?? "已上传视频"}
+        {file?.name ?? t("已上传视频")}
         {file?.name.toLowerCase().endsWith(".mov") ? (
-          <small>若当前浏览器无法播放 MOV，仍可正常上传保存。</small>
+          <small>{t("若当前浏览器无法播放 MOV，仍可正常上传保存。")}</small>
         ) : null}
       </figcaption>
     </figure>
@@ -151,15 +153,20 @@ async function uploadVideoResumable(
   bucketName: string,
   objectName: string,
   upsert = false,
+  translateMessage: (key: string) => string = (key) => key,
 ) {
   const supabase = createClient();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!supabase || !supabaseUrl) throw new Error("Supabase 尚未配置");
+  if (!supabase || !supabaseUrl) {
+    throw new Error(translateMessage("Supabase 尚未配置"));
+  }
 
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (!session) throw new Error("登录状态已失效，请重新登录");
+  if (!session) {
+    throw new Error(translateMessage("登录状态已失效，请重新登录"));
+  }
 
   await new Promise<void>((resolve, reject) => {
     const upload = new tus.Upload(file, {
@@ -201,6 +208,7 @@ export function AdminCourseEditor({
   demo: boolean;
   initialCourse?: Course;
 }) {
+  const { t } = useLanguage();
   const [chapters, setChapters] = useState<ChapterDraft[]>(() =>
     initialCourse
       ? initialCourse.chapters.map((chapter) => ({
@@ -239,7 +247,7 @@ export function AdminCourseEditor({
     setStatus("");
 
     if (demo) {
-      setStatus("演示模式不会写入数据。配置 Supabase 后即可创建课程。");
+      setStatus(t("演示模式不会写入数据。配置 Supabase 后即可创建课程。"));
       return;
     }
 
@@ -289,12 +297,17 @@ export function AdminCourseEditor({
             const extension =
               lesson.videoFile.name.split(".").pop()?.toLowerCase() ?? "mp4";
             videoPath = `${courseId}/${lesson.id}.${extension}`;
-            setStatus(`正在上传视频：${lesson.title || lesson.videoFile.name}`);
+            setStatus(
+              t("正在上传视频：{name}", {
+                name: lesson.title || lesson.videoFile.name,
+              }),
+            );
             await uploadVideoResumable(
               lesson.videoFile,
               "course-videos",
               videoPath,
               Boolean(lesson.videoPath),
+              t,
             );
           }
           const attachments = (lesson.existingAttachments ?? []).map(
@@ -359,12 +372,14 @@ export function AdminCourseEditor({
       });
 
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "课程保存失败");
+      if (!response.ok) {
+        throw new Error(t(result.error ?? "课程保存失败"));
+      }
       window.location.href = initialCourse
         ? "/admin?updated=1"
         : "/admin?created=1";
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "保存失败，请重试");
+      setStatus(error instanceof Error ? error.message : t("保存失败，请重试"));
     } finally {
       setSaving(false);
     }
@@ -374,7 +389,7 @@ export function AdminCourseEditor({
     <form className="admin-form" onSubmit={handleSubmit}>
       <div className="form-grid">
         <div className="field">
-          <label htmlFor="title">课程名称</label>
+          <label htmlFor="title">{t("课程名称")}</label>
           <input
             className="input"
             id="title"
@@ -384,7 +399,7 @@ export function AdminCourseEditor({
           />
         </div>
         <div className="field">
-          <label htmlFor="slug">URL 标识</label>
+          <label htmlFor="slug">{t("URL 标识")}</label>
           <input
             className="input"
             id="slug"
@@ -396,7 +411,7 @@ export function AdminCourseEditor({
           />
         </div>
         <div className="field">
-          <label htmlFor="instructor">讲师</label>
+          <label htmlFor="instructor">{t("讲师")}</label>
           <input
             className="input"
             id="instructor"
@@ -406,7 +421,7 @@ export function AdminCourseEditor({
           />
         </div>
         <div className="field">
-          <label htmlFor="category">分类</label>
+          <label htmlFor="category">{t("分类")}</label>
           <input
             className="input"
             id="category"
@@ -416,33 +431,33 @@ export function AdminCourseEditor({
           />
         </div>
         <div className="field">
-          <label htmlFor="level">难度</label>
+          <label htmlFor="level">{t("难度")}</label>
           <select
             className="select"
             id="level"
             name="level"
             defaultValue={initialCourse?.level ?? "入门"}
           >
-            <option>入门</option>
-            <option>进阶</option>
-            <option>通用</option>
+            <option value="入门">{t("入门")}</option>
+            <option value="进阶">{t("进阶")}</option>
+            <option value="通用">{t("通用")}</option>
           </select>
         </div>
         <div className="field">
-          <label htmlFor="status">状态</label>
+          <label htmlFor="status">{t("状态")}</label>
           <select
             className="select"
             id="status"
             name="status"
             defaultValue={initialCourse?.status ?? "draft"}
           >
-            <option value="draft">草稿</option>
-            <option value="published">发布</option>
+            <option value="draft">{t("草稿")}</option>
+            <option value="published">{t("发布")}</option>
           </select>
         </div>
       </div>
       <div className="field">
-        <label htmlFor="subtitle">一句话简介</label>
+        <label htmlFor="subtitle">{t("一句话简介")}</label>
         <input
           className="input"
           id="subtitle"
@@ -452,7 +467,7 @@ export function AdminCourseEditor({
         />
       </div>
       <div className="field">
-        <label htmlFor="intro-images">课程介绍图片（可多选）</label>
+        <label htmlFor="intro-images">{t("课程介绍图片（可多选）")}</label>
         <input
           className="input file-input"
           id="intro-images"
@@ -465,7 +480,9 @@ export function AdminCourseEditor({
         />
         {initialCourse?.introImages.length ? (
           <p className="existing-file-note">
-            当前已有 {initialCourse.introImages.length} 张介绍图片；重新选择后将整体替换。
+            {t("当前已有 {count} 张介绍图片；重新选择后将整体替换。", {
+              count: initialCourse.introImages.length,
+            })}
           </p>
         ) : null}
         {(introImageFiles.length > 0 || initialCourse?.introImages.length) && (
@@ -480,8 +497,10 @@ export function AdminCourseEditor({
               : initialCourse?.introImages.map((image, index) => (
                   <MediaImagePreview
                     src={image}
-                    alt={`已上传的课程介绍图片 ${index + 1}`}
-                    label={`已上传图片 ${index + 1}`}
+                    alt={t("已上传的课程介绍图片 {index}", {
+                      index: index + 1,
+                    })}
+                    label={t("已上传图片 {index}", { index: index + 1 })}
                     key={image}
                   />
                 ))}
@@ -489,18 +508,18 @@ export function AdminCourseEditor({
         )}
       </div>
       <div className="field">
-        <label htmlFor="description">课程介绍</label>
+        <label htmlFor="description">{t("课程介绍")}</label>
         <textarea
           className="textarea"
           id="description"
           name="description"
           defaultValue={initialCourse?.description}
-          placeholder="支持多段文字。课程介绍图片可作为课程封面和后续内容区扩展。"
+          placeholder={t("支持多段文字。课程介绍图片可作为课程封面和后续内容区扩展。")}
           required
         />
       </div>
       <div className="field">
-        <label htmlFor="cover">课程封面</label>
+        <label htmlFor="cover">{t("课程封面")}</label>
         <input
           className="input file-input"
           id="cover"
@@ -509,31 +528,35 @@ export function AdminCourseEditor({
           onChange={(event) => setCoverFile(event.target.files?.[0] ?? null)}
         />
         {initialCourse?.coverUrl ? (
-          <p className="existing-file-note">未选择新图片时保留当前课程封面。</p>
+          <p className="existing-file-note">{t("未选择新图片时保留当前课程封面。")}</p>
         ) : null}
         {(coverPreviewUrl || initialCourse?.coverUrl) && (
           <div className="media-preview-grid cover-preview-grid">
             <MediaImagePreview
               src={coverPreviewUrl || initialCourse!.coverUrl}
-              alt="课程封面预览"
-              label={coverFile?.name ?? "当前课程封面"}
+              alt={t("课程封面预览")}
+              label={coverFile?.name ?? t("当前课程封面")}
             />
           </div>
         )}
       </div>
 
       <section className="form-section">
-        <h3>课程章节</h3>
+        <h3>{t("课程章节")}</h3>
         <p style={{ color: "#73798d", fontSize: 13 }}>
-          每个章节可添加多个视频课时。
+          {t("每个章节可添加多个视频课时。")}
         </p>
         {chapters.map((chapter, chapterIndex) => (
           <div className="lesson-editor" key={chapter.id}>
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
               <input
                 className="input"
-                aria-label={`第 ${chapterIndex + 1} 章标题`}
-                placeholder={`第 ${chapterIndex + 1} 章标题`}
+                aria-label={t("第 {index} 章标题", {
+                  index: chapterIndex + 1,
+                })}
+                placeholder={t("第 {index} 章标题", {
+                  index: chapterIndex + 1,
+                })}
                 value={chapter.title}
                 onChange={(event) =>
                   updateChapter(chapter.id, (current) => ({
@@ -546,7 +569,7 @@ export function AdminCourseEditor({
               {chapters.length > 1 && (
                 <button
                   type="button"
-                  aria-label="删除章节"
+                  aria-label={t("删除章节")}
                   onClick={() =>
                     setChapters((current) =>
                       current.filter((item) => item.id !== chapter.id),
@@ -569,7 +592,9 @@ export function AdminCourseEditor({
               >
                 <div className="form-grid">
                   <div className="field">
-                    <label>课时 {lessonIndex + 1} 标题</label>
+                    <label>
+                      {t("课时 {index} 标题", { index: lessonIndex + 1 })}
+                    </label>
                     <input
                       className="input"
                       value={lesson.title}
@@ -587,7 +612,7 @@ export function AdminCourseEditor({
                     />
                   </div>
                   <div className="field">
-                    <label>时长（分钟）</label>
+                    <label>{t("时长（分钟）")}</label>
                     <input
                       className="input"
                       type="number"
@@ -610,7 +635,7 @@ export function AdminCourseEditor({
                   </div>
                 </div>
                 <div className="field">
-                  <label>课时说明</label>
+                  <label>{t("课时说明")}</label>
                   <textarea
                     className="textarea"
                     value={lesson.description}
@@ -627,7 +652,7 @@ export function AdminCourseEditor({
                   />
                 </div>
                 <div className="field">
-                  <label>课程附件（文档或压缩包，可多选）</label>
+                  <label>{t("课程附件（文档或压缩包，可多选）")}</label>
                   <input
                     className="input file-input"
                     type="file"
@@ -651,7 +676,7 @@ export function AdminCourseEditor({
                   />
                   {lesson.existingAttachments?.length ? (
                     <p className="existing-file-note">
-                      已保留：{" "}
+                      {t("已保留：")}{" "}
                       {lesson.existingAttachments
                         .map((attachment) => attachment.filename)
                         .join("、")}
@@ -660,7 +685,7 @@ export function AdminCourseEditor({
                 </div>
                 <div className="field">
                   <label>
-                    <UploadCloud size={15} /> 视频文件
+                    <UploadCloud size={15} /> {t("视频文件")}
                   </label>
                   <input
                     className="input file-input"
@@ -679,7 +704,7 @@ export function AdminCourseEditor({
                   />
                   {lesson.videoPath ? (
                     <p className="existing-file-note">
-                      未选择新视频时保留当前视频。
+                      {t("未选择新视频时保留当前视频。")}
                     </p>
                   ) : null}
                   <VideoPreview
@@ -700,7 +725,7 @@ export function AdminCourseEditor({
                 }))
               }
             >
-              <Plus size={15} /> 添加课时
+              <Plus size={15} /> {t("添加课时")}
             </button>
           </div>
         ))}
@@ -710,17 +735,17 @@ export function AdminCourseEditor({
           type="button"
           onClick={() => setChapters((current) => [...current, makeChapter()])}
         >
-          <Plus size={15} /> 添加章节
+          <Plus size={15} /> {t("添加章节")}
         </button>
       </section>
       {status && <p className="form-error">{status}</p>}
       <button className="button dark" type="submit" disabled={saving}>
         <Save size={16} />{" "}
         {saving
-          ? "正在上传并保存…"
+          ? t("正在上传并保存…")
           : initialCourse
-            ? "保存修改"
-            : "保存课程"}
+            ? t("保存修改")
+            : t("保存课程")}
       </button>
     </form>
   );

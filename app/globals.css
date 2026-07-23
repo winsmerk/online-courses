@@ -130,6 +130,34 @@ img {
   font-size: 14px;
 }
 
+.language-switcher {
+  min-height: 38px;
+  padding: 8px 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  cursor: pointer;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.06);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.language-switcher:hover {
+  border-color: rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.language-switcher.compact {
+  min-height: 34px;
+  padding: 7px 9px;
+}
+
 .nav a {
   opacity: 0.72;
   transition: opacity 0.2s ease;
@@ -1041,8 +1069,21 @@ img {
   padding: 60px 8vw;
   display: grid;
   place-items: center;
+  position: relative;
   background: #f6f7fb;
   color: var(--ink);
+}
+
+.auth-language {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  color: var(--ink);
+}
+
+.auth-language .language-switcher {
+  border-color: var(--line);
+  background: white;
 }
 
 .auth-card {
@@ -1264,6 +1305,13 @@ img {
   background: transparent;
   font-size: 14px;
   text-align: left;
+}
+
+.sidebar-nav .language-switcher {
+  width: 100%;
+  margin-top: 8px;
+  justify-content: flex-start;
+  color: #aab1c9;
 }
 
 .dashboard-main {

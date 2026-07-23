@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/components/language-provider";
 
 export function NavigationProgress() {
   const pathname = usePathname();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -56,7 +58,7 @@ export function NavigationProgress() {
     <div
       className={`navigation-progress ${loading ? "visible" : ""}`}
       role="progressbar"
-      aria-label="页面加载中"
+      aria-label={t("页面加载中")}
       aria-hidden={!loading}
     />
   );

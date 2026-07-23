@@ -11,15 +11,18 @@ import {
   Upload,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useLanguage } from "@/components/language-provider";
 import { LogoutButton } from "@/components/logout-button";
 
 export function DashboardNav({ role }: { role: "student" | "admin" }) {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   return (
-    <nav className="sidebar-nav" aria-label="学员中心导航">
-      <Link href="/" title="返回首页" prefetch>
-        <Home size={16} /> 首页
+    <nav className="sidebar-nav" aria-label={t("学员中心导航")}>
+      <Link href="/" title={t("返回首页")} prefetch>
+        <Home size={16} /> {t("首页")}
       </Link>
       <Link
         href="/dashboard"
@@ -27,7 +30,7 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
         className={pathname === "/dashboard" ? "active" : ""}
         aria-current={pathname === "/dashboard" ? "page" : undefined}
       >
-        <BookOpen size={16} /> 我的学习
+        <BookOpen size={16} /> {t("我的学习")}
       </Link>
       {role === "admin" && (
         <>
@@ -45,7 +48,7 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
                 : undefined
             }
           >
-            <Upload size={16} /> 课程管理
+            <Upload size={16} /> {t("课程管理")}
           </Link>
           <Link
             href="/admin/students"
@@ -55,7 +58,7 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
               pathname.startsWith("/admin/students") ? "page" : undefined
             }
           >
-            <GraduationCap size={16} /> 学员管理
+            <GraduationCap size={16} /> {t("学员管理")}
           </Link>
           <Link
             href="/admin/users"
@@ -65,7 +68,7 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
               pathname.startsWith("/admin/users") ? "page" : undefined
             }
           >
-            <ShieldCheck size={16} /> 管理员账号
+            <ShieldCheck size={16} /> {t("管理员账号")}
           </Link>
         </>
       )}
@@ -74,11 +77,12 @@ export function DashboardNav({ role }: { role: "student" | "admin" }) {
         prefetch
         className={pathname === "/settings" ? "active" : ""}
         aria-current={pathname === "/settings" ? "page" : undefined}
-        title="账号设置"
+        title={t("账号设置")}
       >
-        <Settings size={16} /> 账号设置
+        <Settings size={16} /> {t("账号设置")}
       </Link>
       <LogoutButton icon={<LogOut size={16} />} />
+      <LanguageSwitcher />
     </nav>
   );
 }

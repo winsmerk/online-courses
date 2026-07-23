@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { signIn } from "@/app/actions/auth";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { getServerI18n } from "@/lib/i18n-server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export default async function LoginPage({
@@ -8,6 +10,7 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; next?: string }>;
 }) {
   const { error, next } = await searchParams;
+  const { t } = await getServerI18n();
 
   return (
     <main className="auth-page">
@@ -16,18 +19,21 @@ export default async function LoginPage({
           <span className="logo-mark">B</span>
           <span>Beyond Wild</span>
         </Link>
-        <h1>继续学习，让每一步都有积累。</h1>
-        <p style={{ color: "#8f97b0" }}>系统课程 · 随时回看 · 自动保存进度</p>
+        <h1>{t("继续学习，让每一步都有积累。")}</h1>
+        <p style={{ color: "#8f97b0" }}>{t("系统课程 · 随时回看 · 自动保存进度")}</p>
       </section>
       <section className="auth-panel">
+        <div className="auth-language">
+          <LanguageSwitcher />
+        </div>
         <form className="auth-card" action={signIn}>
           <p className="eyebrow">Welcome back</p>
-          <h2>登录学习账号</h2>
-          <p>请输入管理员为你开通的邮箱和密码。</p>
+          <h2>{t("登录学习账号")}</h2>
+          <p>{t("请输入管理员为你开通的邮箱和密码。")}</p>
           {error && <div className="form-error">{error}</div>}
           <input type="hidden" name="next" value={next ?? "/dashboard"} />
           <div className="field">
-            <label htmlFor="email">邮箱</label>
+            <label htmlFor="email">{t("邮箱")}</label>
             <input
               className="input"
               id="email"
@@ -39,27 +45,27 @@ export default async function LoginPage({
             />
           </div>
           <div className="field">
-            <label htmlFor="password">密码</label>
+            <label htmlFor="password">{t("密码")}</label>
             <input
               className="input"
               id="password"
               name="password"
               type="password"
               autoComplete="current-password"
-              placeholder="输入密码"
+              placeholder={t("输入密码")}
               required
             />
           </div>
           <button className="button dark" type="submit">
-            {isSupabaseConfigured ? "登录" : "进入演示账号"}
+            {isSupabaseConfigured ? t("登录") : t("进入演示账号")}
           </button>
           <p className="form-help">
-            还没有账号？请前往
+            {t("还没有账号？请前往")}
             <Link href="/enroll" style={{ color: "#1677c8" }}>
               {" "}
-              微信报名页面
+              {t("微信报名页面")}
             </Link>
-            ，由管理员确认后开通。
+            {t("，由管理员确认后开通。")}
           </p>
         </form>
       </section>
