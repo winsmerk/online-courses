@@ -95,7 +95,7 @@ export function AdminUserManager() {
           <h2>创建登录账号</h2>
           <p>邮箱会自动确认，不发送注册邮件。请通过安全方式把密码交给用户。</p>
         </div>
-        <form className="admin-form" onSubmit={createUser}>
+        <form className="user-create-form" onSubmit={createUser}>
           <label>
             姓名
             <input name="displayName" required placeholder="例如：陈默" />

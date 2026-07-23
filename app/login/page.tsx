@@ -13,8 +13,8 @@ export default async function LoginPage({
     <main className="auth-page">
       <section className="auth-brand">
         <Link href="/" className="logo">
-          <span className="logo-mark">知</span>
-          <span>知序课堂</span>
+          <span className="logo-mark">B</span>
+          <span>Beyond Wild</span>
         </Link>
         <h1>继续学习，让每一步都有积累。</h1>
         <p style={{ color: "#8f97b0" }}>系统课程 · 随时回看 · 自动保存进度</p>

@@ -1,12 +1,8 @@
 import { AdminUserManager } from "@/components/admin-user-manager";
-import { DashboardShell } from "@/components/dashboard-shell";
-import { requireAdmin } from "@/lib/viewer";
 
-export default async function AdminUsersPage() {
-  const viewer = await requireAdmin();
-
+export default function AdminUsersPage() {
   return (
-    <DashboardShell viewer={viewer} active="users">
+    <>
       <div className="dashboard-top">
         <div>
           <h1>账号管理</h1>
@@ -14,6 +10,6 @@ export default async function AdminUsersPage() {
         </div>
       </div>
       <AdminUserManager />
-    </DashboardShell>
+    </>
   );
 }

@@ -7,8 +7,8 @@ export function Footer() {
         <div className="footer-grid">
           <div>
             <Link href="/" className="logo">
-              <span className="logo-mark">知</span>
-              <span>知序课堂</span>
+              <span className="logo-mark">B</span>
+              <span>Beyond Wild</span>
             </Link>
             <p>
               把真实经验整理成清晰方法，让每一次学习都能沉淀为长期能力。
@@ -22,7 +22,7 @@ export function Footer() {
           </div>
         </div>
         <div className="footer-bottom">
-          © {new Date().getFullYear()} 知序课堂 · 保留所有权利
+          © {new Date().getFullYear()} Beyond Wild · 保留所有权利
         </div>
       </div>
     </footer>

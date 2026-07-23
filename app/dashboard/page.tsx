@@ -21,7 +21,7 @@ export default async function DashboardPage() {
   return (
     <>
       <DemoBanner />
-      <DashboardShell viewer={viewer} active="learning">
+      <DashboardShell viewer={viewer}>
         <div className="dashboard-top">
           <div>
             <h1>你好，{viewer.name}</h1>

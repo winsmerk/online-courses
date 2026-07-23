@@ -3,8 +3,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "知序课堂｜把经验变成能力",
-    template: "%s｜知序课堂",
+    default: "Beyond Wild｜把经验变成能力",
+    template: "%s｜Beyond Wild",
   },
   description:
     "面向创作者与专业人士的高质量在线课程，系统学习品牌、表达与增长。",

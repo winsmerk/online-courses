@@ -1,23 +1,17 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { DashboardShell } from "@/components/dashboard-shell";
-import { DemoBanner } from "@/components/demo-banner";
-import { getCourses } from "@/lib/data";
-import { requireAdmin } from "@/lib/viewer";
+import { getAdminCourseSummaries } from "@/lib/data";
 
 export default async function AdminPage({
   searchParams,
 }: {
   searchParams: Promise<{ created?: string }>;
 }) {
-  const viewer = await requireAdmin();
-  const courses = await getCourses();
+  const courses = await getAdminCourseSummaries();
   const { created } = await searchParams;
 
   return (
     <>
-      <DemoBanner />
-      <DashboardShell viewer={viewer} active="admin">
         <div className="dashboard-top">
           <div>
             <h1>课程管理</h1>
@@ -53,15 +47,7 @@ export default async function AdminPage({
           <div className="stat">
             <span>总课时</span>
             <strong>
-              {courses.reduce(
-                (total, course) =>
-                  total +
-                  course.chapters.reduce(
-                    (count, chapter) => count + chapter.lessons.length,
-                    0,
-                  ),
-                0,
-              )}
+              {courses.reduce((total, course) => total + course.lessonCount, 0)}
             </strong>
           </div>
         </section>
@@ -76,16 +62,20 @@ export default async function AdminPage({
                 <span className="filter-pill">{course.status}</span>
                 <h3>{course.title}</h3>
                 <span className="progress-label">
-                  {course.chapters.length} 个章节 · {course.instructor}
+                  {course.chapterCount} 个章节 · {course.lessonCount} 节课 ·{" "}
+                  {course.instructor}
                 </span>
               </div>
-              <Link className="button secondary" href={`/courses/${course.slug}`}>
-                查看
+              <Link
+                className="button secondary"
+                href={`/courses/${encodeURIComponent(course.slug)}`}
+                prefetch
+              >
+                查看课程详情
               </Link>
             </article>
           ))}
         </div>
-      </DashboardShell>
     </>
   );
 }

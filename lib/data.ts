@@ -3,6 +3,16 @@ import { createClient } from "./supabase/server";
 import { isSupabaseConfigured } from "./supabase/config";
 import type { Chapter, Course, EnrollmentCourse } from "./types";
 
+export type AdminCourseSummary = {
+  id: string;
+  slug: string;
+  title: string;
+  instructor: string;
+  status: "draft" | "published";
+  chapterCount: number;
+  lessonCount: number;
+};
+
 type CourseRow = {
   id: string;
   slug: string;
@@ -79,7 +89,7 @@ function mapCourse(row: CourseRow): Course {
     introImages: (row.course_images ?? [])
       .sort((a, b) => a.sort_order - b.sort_order)
       .map((image) => image.image_url),
-    instructor: row.instructor ?? "知序讲师",
+    instructor: row.instructor ?? "Beyond Wild 讲师",
     category: row.category ?? "通识",
     level: row.level ?? "通用",
     durationMinutes: row.duration_minutes ?? 0,
@@ -104,6 +114,49 @@ export async function getCourses(): Promise<Course[]> {
     return [];
   }
   return (data as CourseRow[]).map(mapCourse);
+}
+
+export async function getAdminCourseSummaries(): Promise<AdminCourseSummary[]> {
+  if (!isSupabaseConfigured) {
+    return demoCourses.map((course) => ({
+      id: course.id,
+      slug: course.slug,
+      title: course.title,
+      instructor: course.instructor,
+      status: course.status,
+      chapterCount: course.chapters.length,
+      lessonCount: course.chapters.reduce(
+        (total, chapter) => total + chapter.lessons.length,
+        0,
+      ),
+    }));
+  }
+
+  const supabase = await createClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("courses")
+    .select("id, slug, title, instructor, status, chapters(id, lessons(id))")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Unable to load admin course summaries", error.message);
+    return [];
+  }
+
+  return data.map((course) => ({
+    id: course.id,
+    slug: course.slug,
+    title: course.title,
+    instructor: course.instructor ?? "",
+    status: course.status,
+    chapterCount: course.chapters?.length ?? 0,
+    lessonCount:
+      course.chapters?.reduce(
+        (total, chapter) => total + (chapter.lessons?.length ?? 0),
+        0,
+      ) ?? 0,
+  }));
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {

@@ -9,9 +9,9 @@ export async function Header({ dark = true }: { dark?: boolean }) {
       className="shell site-header"
       style={{ color: dark ? "white" : "var(--ink)" }}
     >
-      <Link href="/" className="logo" aria-label="知序课堂首页">
-        <span className="logo-mark">知</span>
-        <span>知序课堂</span>
+      <Link href="/" className="logo" aria-label="Beyond Wild 首页">
+        <span className="logo-mark">B</span>
+        <span>Beyond Wild</span>
       </Link>
       <nav className="nav" aria-label="主导航">
         <Link href="/courses">全部课程</Link>
