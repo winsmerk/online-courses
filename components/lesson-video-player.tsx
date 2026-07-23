@@ -36,7 +36,6 @@ export function LessonVideoPlayer({ src }: { src: string }) {
         <video
           ref={videoRef}
           src={src}
-          controls
           playsInline
           preload="metadata"
           onPlay={() => setIsPlaying(true)}
