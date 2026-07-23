@@ -15,9 +15,9 @@ export function Footer() {
             </p>
           </div>
           <div className="footer-links">
-            <Link href="/courses">全部课程</Link>
+            <Link href="/#courses">全部课程</Link>
             <Link href="/dashboard">我的学习</Link>
-            <Link href="/enroll">报名方式</Link>
+            <Link href="/#enroll">报名方式</Link>
             <Link href="/login">账号登录</Link>
           </div>
         </div>

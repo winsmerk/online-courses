@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 function activeClass(active: boolean, extra = "") {
   return `${extra} ${active ? "active" : ""}`.trim();
@@ -15,28 +16,48 @@ export function PublicNav({
   isAdmin: boolean;
 }) {
   const pathname = usePathname();
-  const coursesActive = pathname.startsWith("/courses");
-  const enrollActive = pathname === "/enroll";
+  const [activeSection, setActiveSection] = useState("");
   const loginActive = pathname === "/login";
+
+  useEffect(() => {
+    if (pathname !== "/") {
+      setActiveSection("");
+      return;
+    }
+
+    const sections = ["courses", "enroll"]
+      .map((id) => document.getElementById(id))
+      .filter((section): section is HTMLElement => Boolean(section));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target.id) setActiveSection(visible.target.id);
+      },
+      { rootMargin: "-20% 0px -55% 0px", threshold: [0.05, 0.25, 0.5] },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [pathname]);
 
   return (
     <nav className="nav" aria-label="主导航">
       <Link
-        className={activeClass(coursesActive, "nav-link")}
-        aria-current={coursesActive ? "page" : undefined}
-        href="/courses"
+        className={activeClass(activeSection === "courses", "nav-link")}
+        aria-current={activeSection === "courses" ? "location" : undefined}
+        href="/#courses"
         prefetch
+        onClick={() => setActiveSection("courses")}
       >
         全部课程
       </Link>
-      <Link className="nav-link" href="/#method">
-        学习方式
-      </Link>
       <Link
-        className={activeClass(enrollActive, "nav-link")}
-        aria-current={enrollActive ? "page" : undefined}
-        href="/enroll"
+        className={activeClass(activeSection === "enroll", "nav-link")}
+        aria-current={activeSection === "enroll" ? "location" : undefined}
+        href="/#enroll"
         prefetch
+        onClick={() => setActiveSection("enroll")}
       >
         微信报名
       </Link>

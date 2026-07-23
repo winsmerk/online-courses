@@ -24,10 +24,10 @@ export default async function HomePage() {
               建立属于自己的专业路径。
             </p>
             <div className="hero-actions">
-              <Link className="button" href="/courses">
+              <Link className="button" href="#courses">
                 探索课程 <ArrowRight size={17} />
               </Link>
-              <Link className="button secondary" href="/enroll">
+              <Link className="button secondary" href="#enroll">
                 添加微信报名
               </Link>
             </div>
@@ -88,7 +88,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section" id="courses">
         <div className="shell">
           <div className="section-heading">
             <div>
@@ -131,7 +131,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section" id="enroll">
         <div className="shell wechat-cta">
           <div>
             <p className="eyebrow" style={{ color: "var(--blue)" }}>
@@ -141,8 +141,8 @@ export default async function HomePage() {
             <p>
               添加官方微信，告诉我们你感兴趣的课程。确认报名后，我们会为你开通学习账号。
             </p>
-            <Link className="button" href="/enroll">
-              <Sparkles size={17} /> 查看报名方式
+            <Link className="button" href="#enroll">
+              <Sparkles size={17} /> 微信报名
             </Link>
             <div style={{ marginTop: 26, color: "#aab1c9", fontSize: 13 }}>
               <Check size={15} style={{ verticalAlign: "middle" }} />{" "}
