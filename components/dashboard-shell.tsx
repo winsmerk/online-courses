@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, Home, LogOut, Settings, Upload } from "lucide-react";
+import { BookOpen, Home, LogOut, Settings, Upload, Users } from "lucide-react";
 import type { ReactNode } from "react";
 import type { Viewer } from "@/lib/types";
 import { signOut } from "@/app/actions/auth";
@@ -10,7 +10,7 @@ export function DashboardShell({
   children,
 }: {
   viewer: Viewer;
-  active: "learning" | "admin";
+  active: "learning" | "admin" | "users";
   children: ReactNode;
 }) {
   return (
@@ -31,12 +31,20 @@ export function DashboardShell({
             <BookOpen size={16} /> 我的学习
           </Link>
           {viewer.role === "admin" && (
-            <Link
-              href="/admin"
-              className={active === "admin" ? "active" : ""}
-            >
-              <Upload size={16} /> 课程管理
-            </Link>
+            <>
+              <Link
+                href="/admin"
+                className={active === "admin" ? "active" : ""}
+              >
+                <Upload size={16} /> 课程管理
+              </Link>
+              <Link
+                href="/admin/users"
+                className={active === "users" ? "active" : ""}
+              >
+                <Users size={16} /> 账号管理
+              </Link>
+            </>
           )}
           <Link href="/dashboard" title="账号设置">
             <Settings size={16} /> 账号设置
